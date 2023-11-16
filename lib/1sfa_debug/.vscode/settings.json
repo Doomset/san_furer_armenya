@@ -1,0 +1,20 @@
+{
+    "Lua.diagnostics.globals": [
+        "Взять_Квест"
+    ],
+    "Lua.runtime.unicodeName": true,
+    "Lua.diagnostics.disable": [
+        "undefined-global",
+        "param-type-mismatch",
+        "missing-parameter",
+        "assign-type-mismatch",
+        "deprecated"
+    ],
+    "Lua.workspace.library": [
+        "C:/Users/Administrator/AppData/Roaming/Code/User/globalStorage/sumneko.lua/addonManager/addons/moonloader/module/library"
+    ],
+    "Lua.workspace.checkThirdParty": false,
+    "editor.fontSize": 11,
+    "editor.scrollbar.horizontalScrollbarSize": 10,
+    "workbench.activityBar.iconClickBehavior": "toggle"
+}
