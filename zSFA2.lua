@@ -116,7 +116,8 @@ local update = function ()
 		local verify_directory = function (git_data)
 			directory(getWorkingDirectory()..'\\sfa')
 			for _, v in ipairs(git_data.tree) do
-				if v.type == 'tree' and directory(getWorkingDirectory()..'\\sfa\\'..v.path) then print('[update] папки не существует, создание', v.path) end
+				local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
+				if v.type == 'tree' and directory(getWorkingDirectory()..path) then print('[update] папки не существует, создание', path) end
 			end
 		end
 
@@ -124,10 +125,11 @@ local update = function ()
 			local files = {}
 			for _, v in ipairs(new_data.tree) do
 				if v.type ~= 'tree' then
-					if not doesFileExist(getWorkingDirectory()..'\\sfa\\'..v.path) then
-						table.insert(files,  {path = v.path, size = v.size, update = false})
+					local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
+					if not doesFileExist(getWorkingDirectory()..path) then
+						table.insert(files,  {path = path, size = v.size, update = false})
 					elseif old_data and check_hash(v.path, v.sha, old_data.tree) then
-						table.insert(files,  {path = v.path, size = v.size, update = false})
+						table.insert(files,  {path = path, size = v.size, update = false})
 					end
 				end
 			end
@@ -146,7 +148,8 @@ local update = function ()
 					for _i, v in ipairs(files_for_download) do
 						local url = 'https://raw.githubusercontent.com/doomset/san_furer_armenya/main/'..url_encode(u8(v.path))
 						local moonDir = getWorkingDirectory()
-						local path =  (moonDir.. '\\sfa\\'..v.path) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
+				
+						local path = moonDir..(v.path) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
 						asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
 							write_file(path, resolve.text)
 		--					progress_download.text = (v.update and 'обновлен ' or 'скачан ')..v.path
