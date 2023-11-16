@@ -103,7 +103,7 @@ end
 
 
 
-local git_url, git_path = "https://api.github.com/repos/doomset/sfa/git/trees/main?recursive=1", getWorkingDirectory()..'\\sfa\\data.json'
+local git_url, git_path = "https://api.github.com/repos/doomset/san_furer_armenya/git/trees/main?recursive=1", getWorkingDirectory()..'\\sfa\\data.json'
 local update = function ()
 
 	local hanlder = function(resolve)
@@ -144,7 +144,7 @@ local update = function ()
 
 				local downloader = function (files_for_download)
 					for _i, v in ipairs(files_for_download) do
-						local url = 'https://raw.githubusercontent.com/doomset/sfa/main/'..url_encode(u8(v.path))
+						local url = 'https://raw.githubusercontent.com/doomset/san_furer_armenya/main/'..url_encode(u8(v.path))
 						local moonDir = getWorkingDirectory()
 						local path =  (moonDir.. '\\sfa\\'..v.path) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
 						asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
