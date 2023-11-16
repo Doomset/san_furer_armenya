@@ -1,3 +1,4 @@
+---@diagnostic disable: lowercase-global
 script_properties("work-in-pause")
 script_name('sfa')
 local trace_log, print, _require = {}, print, require
@@ -102,81 +103,75 @@ local check_hash = function(name, hash, git)-- сравнение кеша из старых файлах в
 end
 
 
+local verify_directory = function (git_data)
+	directory(getWorkingDirectory()..'\\sfa')
+	for _, v in ipairs(git_data.tree) do
+		local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
+		if v.type == 'tree' and directory(getWorkingDirectory()..path) then print('[update] папки не существует, создание', path) end
+	end
+end
+
+local verify_files = function (new_data, old_data)
+	local files = {}
+	for _, v in ipairs(new_data.tree) do
+		if v.type ~= 'tree' then
+			local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
+			if not doesFileExist(getWorkingDirectory()..path) then
+				table.insert(files,  {path = path, size = v.size, update = false})
+			elseif old_data and check_hash(v.path, v.sha, old_data.tree) then
+				table.insert(files,  {path = path, size = v.size, update = false})
+			end
+		end
+	end
+	return files
+end
+
+
+
+local verfy = function (new_data, old_data)
+	verify_directory(new_data)
+	local files_for_download = verify_files(new_data, old_data)
+	if #files_for_download > 0 then
+		Noti('Будет скачано файлов: '..#files_for_download, OK)
+
+		local downloader = function (files_for_download)
+			for _i, v in ipairs(files_for_download) do
+				local url = 'https://raw.githubusercontent.com/doomset/san_furer_armenya/main/'..url_encode(u8(v.path))
+				local moonDir = getWorkingDirectory()
+		
+				local path = moonDir..(v.path) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
+				asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
+					write_file(path, resolve.text)
+--					progress_download.text = (v.update and 'обновлен ' or 'скачан ')..v.path
+					table.remove(files_for_download)
+	--						progress_download.current = progress_download.current + 1
+					if #files_for_download == 0 then
+					--	progress_download.text = 'ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО'
+						Noti('ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО, ТРЕБУЕТСЯ ПЕРЕЗАГРУЗКА'..#files_for_download)
+						thisScript():reload()
+					end
+				end, function(err)
+					Noti('Ошибка в закачке/обновления модуля '..v.path, ERROR)
+				end)
+			end
+		end
+
+		
+		downloader(files_for_download)
+	else
+		Noti('Обновлений не обнаружено!')
+	end
+end
+
+
 
 local git_url, git_path = "https://api.github.com/repos/doomset/san_furer_armenya/git/trees/main?recursive=1", getWorkingDirectory()..'\\sfa\\data.json'
 local update = function ()
 
 	local hanlder = function(resolve)
-
-
 		local git_text = u8:decode(resolve.text)
 		local new_data = decodeJson(git_text)
-
-
-		local verify_directory = function (git_data)
-			directory(getWorkingDirectory()..'\\sfa')
-			for _, v in ipairs(git_data.tree) do
-				local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
-				if v.type == 'tree' and directory(getWorkingDirectory()..path) then print('[update] папки не существует, создание', path) end
-			end
-		end
-
-		local verify_files = function (new_data, old_data)
-			local files = {}
-			for _, v in ipairs(new_data.tree) do
-				if v.type ~= 'tree' then
-					local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
-					if not doesFileExist(getWorkingDirectory()..path) then
-						table.insert(files,  {path = path, size = v.size, update = false})
-					elseif old_data and check_hash(v.path, v.sha, old_data.tree) then
-						table.insert(files,  {path = path, size = v.size, update = false})
-					end
-				end
-			end
-			return files
-		end
-
-	
-
-		local verfy = function (new_data, old_data)
-			verify_directory(new_data)
-			local files_for_download = verify_files(new_data, old_data)
-			if #files_for_download > 0 then
-				Noti('Будет скачано файлов: '..#files_for_download, OK)
-
-				local downloader = function (files_for_download)
-					for _i, v in ipairs(files_for_download) do
-						local url = 'https://raw.githubusercontent.com/doomset/san_furer_armenya/main/'..url_encode(u8(v.path))
-						local moonDir = getWorkingDirectory()
-				
-						local path = moonDir..(v.path) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
-						asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
-							write_file(path, resolve.text)
-		--					progress_download.text = (v.update and 'обновлен ' or 'скачан ')..v.path
-							table.remove(files_for_download)
-			--						progress_download.current = progress_download.current + 1
-							if #files_for_download == 0 then
-							--	progress_download.text = 'ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО'
-								Noti('ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО, ТРЕБУЕТСЯ ПЕРЕЗАГРУЗКА'..#files_for_download)
-								thisScript():reload()
-							end
-						end, function(err)
-							Noti('Ошибка в закачке/обновления модуля '..v.path, ERROR)
-						end)
-					end
-				end
-
-				
-				downloader(files_for_download)
-			else
-				Noti('Обновлений не обнаружено!')
-			end
-		end
-
 		
-
-
--- ошибка
 		local old_data = read_file(git_path) --прочитать старый
 		write_file(git_path, git_text) -- записать новый гит
 		if not old_data then

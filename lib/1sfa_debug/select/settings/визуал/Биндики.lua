@@ -64,6 +64,8 @@ local load_string, table_sort, copy_table = loadstring, table.sort, function(t) 
 
 
 
+
+
 local list =
 {
     dick =  copy_table(cfg['Бинды'].list), -- ссыль на список биндов с настроек

@@ -41,6 +41,7 @@ addEventHandler('onReceiveRpc', function(id, bs)
     if IsAnyFuncActiove then
         if id == 61 then
             local did = raknetBitStreamReadInt16(bs)
+            raknetBitStreamIgnoreBits(bs, 8)
             local style = raknetBitStreamReadInt8(bs)
             local title = raknetBitStreamReadString(bs, raknetBitStreamReadInt8(bs))
             local btn1 = raknetBitStreamReadString(bs, raknetBitStreamReadInt8(bs))
