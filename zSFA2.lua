@@ -126,6 +126,7 @@ local verify_files = function (new_data, old_data)
 	return files
 end
 
+msg('sdasasdasduiasdiioasduioasduiodasuiodasuio')
 
 local process = false
 local verfy = function (new_data, old_data)
