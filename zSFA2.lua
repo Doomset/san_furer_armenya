@@ -126,7 +126,7 @@ local verify_files = function (new_data, old_data)
 	return files
 end
 
-
+print('test qdsasdasdasdasdasd')
 local process = false
 local verfy = function (new_data, old_data)
 	
