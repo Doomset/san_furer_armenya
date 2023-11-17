@@ -358,7 +358,7 @@ function(player)
             if changelog == nil then
                 local text = u8'Получаю информацию о последних изменениях...'
                 local calc_text = imgui.CalcTextSize(text)
-                imgui.SetCursorPos(window_size.x / 2 - calc_text.x / 2)
+                imgui.SetCursorPos{window_size.x / 2 - calc_text.x / 2}
                 imgui.Text(text)
                 imgui.SetCursorPos{window_size.x / 2 - 30, window_size.y / 2 - 60}
         
