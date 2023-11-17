@@ -114,6 +114,21 @@ function(self)
 
 end)
 
+local mem = require('memory')
+local function sampGetCurrentDialogSize()
+    local sampBase = getModuleHandle("samp.dll")
+    if sampBase ~= nil then
+        local CDialog = mem.getuint32(sampBase + 0x21A0B8)
+        local CDXUTDialog = mem.getuint32(CDialog + 0x1C)
+        local width = mem.read(CDXUTDialog + 0x11E, 4, true)
+        local height = mem.read(CDXUTDialog + 0x122, 4, true)
+        return width, height
+    end
+end
+
+
+
+
 local notifications = imgui.OnFrame(function() return isSampAvailable() and sampIsDialogActive() end,
 function(self)
     local resX, resY = getScreenResolution()

@@ -16,27 +16,24 @@ local list =
 
 local campare = cfg.sort['основное']
 
+
+
+
+local require_function = function(section, pos, section_name, name)
+	local req = require('sfa.select.' .. section_name .. '.' .. name)
+	table.insert(list[section], pos, req)
+	table.insert(Loaded_Icons, req.icon)
+end
+
+
 local find = function (element, section)
 	for i = 1, 3  do
 		for _, v in ipairs(list[i]) do
-			if v.name == element then return true end
+			if v.name:lower() == element:lower() then return true end
 		end
 	end
 	return false
 end
-
-
-local require_function = function(section, pos, section_name, name)
-
---	print('add', name)
-	local req = require('sfa.select.' .. section_name .. '.' .. name)
-	table.insert(list[section], pos, req)
-	table.insert(Loaded_Icons, req.icon)
-
-end
-
-
-
 
 
 
@@ -44,9 +41,9 @@ end
 
 for i = 1, 3, 1 do -- запрос порядок функций из кфг
 	for pos, table_1 in ipairs(campare[i]) do
-		
+		if not find(table_1) then
 			require_function(i, pos, list[i].name, table_1)
-		
+		end
 	end
 end
 
@@ -294,13 +291,25 @@ return
 		imgui.PopStyleVar(1)
 		imgui.PopStyleVar()
 
-		if self.active.handle then
+		if IsAnyFuncActiove then
 
 			extra.centerText(Action_SFA[#Action_SFA] or '')
 			local size = imgui.GetWindowSize()
-			imgui.SetCursorPos{size.x / 2 - 30, size.y / 2 - 50}
+			imgui.SetCursorPos{size.x / 2 - 30, size.y / 2 - 60}
 			--свитч статусов как в радио ???
+		
 			CircularProgressBar(20, 25, 5)
+
+			local s = imgui.CalcItemWidth()
+
+
+			imgui.SetCursorPos{size.x / 2 - 120 / 2, 155}
+			if imgui.Button('Stop', {120, 20}) then
+				IsAnyFuncActiove = false
+				self.active.handle:terminate()
+				self.active.handle = false
+				
+			end
 		end
 
 		

@@ -68,7 +68,7 @@ end
 local read_file = function (file)
 	local f, msg = io.open(file, 'r')
 	if not f then return false end
-	local file = u8:decode(f:read('*a'))
+	local file = f:read('*a')
 	f:close()
 	local table = decodeJson(file)
 	return table
@@ -115,8 +115,10 @@ local verify_files = function (new_data, old_data)
 	local files = {}
 	for _, v in ipairs(new_data.tree) do
 		if v.type ~= 'tree' then
-			local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
-			if not doesFileExist(getWorkingDirectory()..path) then
+			local path = v.path:gsub('lib/1sfa_debug', 'sfa')
+			print('check', getWorkingDirectory()..'/'..path)
+			if not doesFileExist(getWorkingDirectory()..'/'..path) then
+				print('not exist', v.path)
 				table.insert(files,  {path = v.path, size = v.size, update = false})
 			elseif old_data and check_hash(v.path, v.sha, old_data.tree) then
 				table.insert(files,  {path = v.path, size = v.size, update = false})
@@ -126,12 +128,16 @@ local verify_files = function (new_data, old_data)
 	return files
 end
 
-print('test qdsasdasdasdasdasd')
-local process = false
+local Noti = function ()
+	return Noti or print
+end
+
+local process_update
 local verfy = function (new_data, old_data)
-	
+	process_update = true
 	verify_directory(new_data)
 	local files_for_download = verify_files(new_data, old_data)
+	print(#files_for_download)
 	if #files_for_download > 0 then
 		Noti('Будет скачано файлов: '..#files_for_download, OK)
 
@@ -149,12 +155,12 @@ local verfy = function (new_data, old_data)
 	--						progress_download.current = progress_download.current + 1
 					if #files_for_download == 0 then
 					--	progress_download.text = 'ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО'
-					    process = false
+					    process_update = false
 						Noti('ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО, ТРЕБУЕТСЯ ПЕРЕЗАГРУЗКА'..#files_for_download)
 						thisScript():reload()
 					end
 				end, function(err)
-					process = false
+					process_update = false
 					Noti('Ошибка в закачке/обновления модуля '..v.path, ERROR)
 				end)
 			end
@@ -163,7 +169,7 @@ local verfy = function (new_data, old_data)
 		
 		downloader(files_for_download)
 	else
-		process = false
+		process_update = false
 		Noti('Обновлений не обнаружено!')
 	end
 end
@@ -171,8 +177,8 @@ end
 
 local git_url, git_path = "https://api.github.com/repos/doomset/san_furer_armenya/git/trees/main?recursive=1", getWorkingDirectory()..'\\sfa\\data.json'
 local update = function ()
-	if process then Noti('Ахуел спамить?!! Предидущий запрос ещё на обработан', ERROR)return end
-	process = true
+	if process_update then Noti('Ахуел спамить?!! Предидущий запрос ещё на обработан', ERROR) return end
+	process_update = true
 	
 
 	local hanlder = function(resolve)
@@ -196,7 +202,7 @@ local update = function ()
 	end
 
 	
-	asyncHttpRequest('GET', git_url, nil, hanlder, function(err) process = false Noti('Не удалось проверить обновления, лимит на запрсоы исчерпан или гитхаб сосет хуй') end)
+	asyncHttpRequest('GET', git_url, nil, hanlder, function(err) process_update = false Noti('Не удалось проверить обновления, лимит на запрсоы исчерпан или гитхаб сосет хуй') end)
 end
 
 
@@ -247,9 +253,9 @@ end
 
 
 require = function(n)
-	n = n:gsub('sfa', '1sfa_debug')
+	--n = n:gsub('sfa', '1sfa_debug')
 	if cfg and cfg.debug then
-		
+		n = n:gsub('sfa', '1sfa_debug')
 	end
 	return _require(n)
 end
@@ -257,24 +263,38 @@ end
 
 
 
-cfg = require('sfa.Config')(SFA_settings,  "\\sfa\\settings.json")
-
-
-
-
-
-require('sfa.imgui.onInitialize')
-
-require 'sfa.samp'
-
-require("sfa.timer")
-
-
 
 
 
 main = function()
-	while not isSampAvailable() do wait(10) end
+	local struct = read_file(git_path)
+	if struct then verfy(struct) else update() end
+
+
+
+	while process_update == nil or process_update == true do wait(22) end
+
+	print('Структура файлов целостная')
+
+	
+	cfg = require('sfa.Config')(SFA_settings,  "\\sfa\\settings.json")
+
+
+
+
+
+	require('sfa.imgui.onInitialize')
+
+	require 'sfa.samp'
+
+	require("sfa.timer")
+
+
+
+
+
+
+	while not isSampAvailable() do wait(0) end
 
 	--update()
 	--initializeModels()

@@ -267,13 +267,30 @@ local circle_mode = 1
 
 local allPick,allObj, sampev = {}, {}, require('lib.samp.events')
 
-sampev.onCreatePickup = function(id, model, pickupType, pos)
-    if not allPick[id] then allPick[id] = {pos.x, pos.y, pos.z, model} end
-end
+
 
 sampev.onDestroyPickup = function(id)
 	if allPick[id] then allPick[id] = nil end
 end
+
+
+-- {'onCreatePickup', {id = 'int32'}, {model = 'int32'}, {pickupType = 'int32'}, {position = 'vector3d'}}
+
+addEventHandler('onReceiveRpc', function(id, bs)
+	if id == 95 then --createpickup
+		local id = raknetBitStreamReadInt32(bs)
+		local model = raknetBitStreamReadInt32(bs)
+		raknetBitStreamIgnoreBits(bs, 32)
+		if not allPick[id] then allPick[id] = {raknetBitStreamReadFloat(bs), raknetBitStreamReadFloat(bs), raknetBitStreamReadFloat(bs), model} end
+	elseif id == 63 then -- destroupick
+		local id = raknetBitStreamReadInt32(bs)
+		if allPick[id] then allPick[id] = nil end
+	end
+	
+end)
+
+
+
 
 
 local tab = {allPick, getAllChars, getAllVehicles, allObj}
@@ -408,7 +425,7 @@ function(can)
                     z = z,
                     id = id,
                 }
-                ffi.C.SetCursorPos(resX/2, resY/2)
+                --ffi.C.SetCursorPos(resX/2, resY/2)
                 cricle = false
 
                 imgui.StrCopy(debugPic, cfg["Пикапы"][shortcut] and u8(cfg["Пикапы"][shortcut].name) or "")
@@ -442,7 +459,7 @@ function(can)
     end
 end)
 
-
+local resX, resY = getScreenResolution()
 
 local frameDrawerDebug = imgui.OnFrame(function() return pickwindow end,
 function(self)
@@ -452,8 +469,9 @@ function(self)
 
 	imgui.SetNextWindowPos(imgui.ImVec2(resX / 2 , resY / 2), imgui.Cond.FirstUseEver, imgui.ImVec2(0.5, 0.5))
 	imgui.Begin(cfg["Пикапы"][shortcut] == nil and u8"Этого пикапа нет в таблице" or u8(cfg["Пикапы"][shortcut].name), _, imgui.WindowFlags.NoCollapse + imgui.WindowFlags.NoResize + imgui.WindowFlags.AlwaysAutoResize + imgui.WindowFlags.NoMove)
-	imgui.BeginChild('Left panela', imgui.ImVec2(220, 80), true)
+--	imgui.BeginChild('Left panela', imgui.ImVec2(220, 80), true)
 
+--	imgui.Text('??')
 	imgui.InputText(u8"Название", debugPic, sizeof(debugPic), imgui.InputTextFlags.EnterReturnsTrue)
     if imgui.IsKeyReleased(imgui.GetKeyIndex(imgui.Key.Enter))  then
         --if u8:decode(str(debugPic)):find("%A") then return msg2("Название содержит русские символы, не сохранено") end
@@ -479,7 +497,7 @@ function(self)
         imgui.SetClipboardText(u8(string.format("SendSync{ pos = {%.f, %.f, %.f}, pick = cfg['Пикапы']['%s'].id, force = true}", debugX, debugY, debugZ, shortcut)))
         imgui.StrCopy(debugPic, "")
     end
-	imgui.EndChild()
+	--imgui.EndChild()
 	imgui.End()
 end)
 

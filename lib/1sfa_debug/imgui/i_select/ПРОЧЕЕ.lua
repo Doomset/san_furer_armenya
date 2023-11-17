@@ -52,15 +52,20 @@ end
 
 local campare = cfg.sort['прочее']
 
-for pos, table_1 in ipairs(campare) do
-	require_function(pos, table_1:trim())
-end
-
 
 local find = function (element)
 	for _, v in ipairs(list) do if v[1]:trim() == element then  return true end end
 	return false
 end
+
+for pos, table_1 in ipairs(campare) do
+	if not find(table_1) then
+		require_function(pos, table_1:trim())
+	end
+end
+
+
+
 
 
 
