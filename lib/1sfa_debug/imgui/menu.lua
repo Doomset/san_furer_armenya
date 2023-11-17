@@ -353,12 +353,19 @@ function(player)
         self._sfa()   -- sfaAAAAAAAAA
 
 
+        local window_size = imgui.GetWindowSize()
         if cfg.is_upd_to_date then
             if changelog == nil then
-                imgui.Text(u8'Получаю информацию о последних изменениях...')
+                local text = u8'Получаю информацию о последних изменениях...'
+                local calc_text = imgui.CalcTextSize(text)
+                imgui.SetCursorPos(window_size.x / 2 - calc_text.x / 2)
+                imgui.Text(text)
+                imgui.SetCursorPos{window_size.x / 2 - 30, window_size.y / 2 - 60}
+        
                 CircularProgressBar(20, 25, 5)
             else
-                imgui.Text(changelog[1].comit.autor.date)
+                imgui.Text(changelog[1].commit.author.date)
+                imgui.Text(u8(changelog[1].commit.message))
             end
             if imgui.Button('Poxyi + poebat') then
                 cfg.is_upd_to_date = false
