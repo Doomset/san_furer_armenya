@@ -139,3 +139,4 @@ require('sfa.imgui.onScreen')
 require('sfa.imgui.menu')
 require('sfa.imgui.not')
 
+Noti('sfa - успешно загружен!')

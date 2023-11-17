@@ -348,8 +348,12 @@ function(player)
         self._sfa()   -- sfaAAAAAAAAA
 
 
-   
-        addons[select].gui(self)
+        if cfg.is_upd_to_date then
+            imgui.Button('Poxyi')
+        else 
+
+            addons[select].gui(self)
+        end
        
 
 

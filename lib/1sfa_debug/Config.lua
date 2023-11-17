@@ -1,5 +1,6 @@
 SFA_settings = {
 
+	is_upd_to_date = false,
 	build = '',
 	autoupdate = false,
 	piska = 1,
@@ -286,8 +287,9 @@ local json = function(orig_t, save_name)
 			if not rawget(self, k) then
 				print(k, 'ключ не был найден в загруженных найстройках')
 
+				
 				if rawget(orig_t, k) then
-					print(k, 'но был найден в дефолтной таблице')
+					msg(k, 'ключ не был найден в загруженных найстройках, о был найден в дефолтной таблице, сохранение')
 					rawset(self, k, orig_t[k])
 					save()
 				end

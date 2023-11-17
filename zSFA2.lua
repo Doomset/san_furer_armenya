@@ -94,10 +94,10 @@ local directory = function (dir)
 end
 
 
-
+local is_update = false --  было ли обновление
 local check_hash = function(name, hash, git)-- сравнение кеша из старых файлах в новых
 	for _, v in ipairs(git) do
-		if v.path == name and v.sha ~= hash and v.type ~= 'tree' then print('Обнаружено обновление в файле ! '..name) return true end
+		if v.path == name and v.sha ~= hash and v.type ~= 'tree' then print('Обнаружено обновление в файле ! '..name) is_update = true return true end
 	end
 	return false
 end
@@ -157,6 +157,7 @@ local verfy = function (new_data, old_data)
 					--	progress_download.text = 'ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО'
 					    process_update = false
 						Noti('ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО, ТРЕБУЕТСЯ ПЕРЕЗАГРУЗКА'..#files_for_download)
+						if is_update then cfg.is_upd_to_date = true; end
 						thisScript():reload()
 					end
 				end, function(err)
@@ -186,6 +187,7 @@ local update = function ()
 		local new_data = decodeJson(git_text)
 
 		local old_data = read_file(git_path) --прочитать старый
+		directory(getWorkingDirectory()..'\\sfa')
 		write_file(git_path, git_text) -- записать новый гит
 		if not old_data then
 			verfy(new_data)
@@ -307,7 +309,7 @@ main = function()
 
 	-- -- 
 	
-	Noti('sfa - успешно загружен!')
+	
 
 
 	--
@@ -316,61 +318,6 @@ main = function()
 	-- end)
 	wait(-1)
 end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
--- if cfg.debug then
--- 	local path = script.this.path
--- 	local f = io.open(path, 'r')
--- 	local sfa_content = f:read('*a')
--- 	f:close()
-
--- 	cfg.build = os.date("%d.%m.%Y(%H:%M:%S)")
--- 	cfg()
-
--- 	local f = io.open(getWorkingDirectory().. '\\lib\\1sfa\\zsfa2.lua', 'w')
--- 	f:write(sfa_content)
--- 	f:close()
--- end
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-function isAnyCheckpointExist()
-	local misc = sampGetMiscInfoPtr()
-	if misc == 0 then return false end
-	local defoult, race = mem.getint32(misc + 0x24) == 1, mem.getint32(misc + 0x49) == 1
-	local pPos = defoult and (misc + 0xC) or (misc + 0x2C)
-	return (defoult or race), mem.getfloat(pPos), mem.getfloat(pPos + 0x4), mem.getfloat(pPos + 0x8), defoult and 0 or 1
-end
-
-
-
-
 
 
 

@@ -80,7 +80,7 @@ local scan_vehs = mod.scan
 
 local mode_2 = function ()
     
-    Noti('NO KIKC - бнглнфмн опнь╗к бюпм')
+    Noti('NO KIKC - мер пъднл рювйх, бнглнфмн опнь╗к бюпм')
     handler("player_pos", { 2903.17 })
     SendSync { pos = { 1292, 1580, 42 }, key = 2, force = true, manual = "player" }
     timer("abuse", 6)

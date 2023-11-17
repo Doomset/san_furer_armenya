@@ -197,19 +197,25 @@ return
 --					timers.timeout = {os.clock(), 3}
 					IsAnyFuncActiove = true
 					self.active.name = v[1]
-					self.active.handle =
 
-					lua_thread.create(function()
+
+					local fu = function ()
 						local res, reason = pcall(v[4], self)
 						if reason then Noti(reason, ERROR) end
 						if res then Noti(string.format('%s -  OK', v[1]), OK) end
-						wait(0)
+						
 						IsAnyFuncActiove = false
 						self.active.name = false
 						self.active.handle = false
-						
-					end)
+					end
 
+
+					self.active.handle = lua_thread.create_suspended(fu)
+
+					self.active.handle:run()
+
+			
+		
 				end
 				imgui.PopFont()
 				hint(v[3], p2, size)
@@ -310,6 +316,7 @@ return
 				IsAnyFuncActiove = false
 				self.active.handle:terminate()
 				self.active.handle = false
+				Action_SFA = {}
 				
 			end
 		end
