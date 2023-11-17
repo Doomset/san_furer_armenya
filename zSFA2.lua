@@ -125,8 +125,8 @@ local verify_files = function (new_data, old_data)
 	end
 	return files
 end
-
 1
+
 
 local process = false
 local verfy = function (new_data, old_data)
@@ -139,9 +139,9 @@ local verfy = function (new_data, old_data)
 		local downloader = function (files_for_download)
 			for _i, v in ipairs(files_for_download) do
 				local url = 'https://raw.githubusercontent.com/doomset/san_furer_armenya/main/'..url_encode(u8(v.path))
-				local moonDir = getWorkingDirectory()
+				local moonDir = getWorkingDirectory()..'\\'
 		
-				local path = moonDir..(v.path:gsub('lib/1sfa_debug', '\\sfa')) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
+				local path = moonDir..(v.path:gsub('lib/1sfa_debug', 'sfa')) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
 				print(path)
 				asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
 					write_file(path, resolve.text)
