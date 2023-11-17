@@ -333,8 +333,13 @@ tabs._sfa = function()
 
 end
 
-
-
+local url = 'https://api.github.com/repos/doomset/san_furer_armenya/commits'
+local changelog
+if cfg.is_upd_to_date then
+    asyncHttpRequest('GET', url, nil, function (res)
+        changelog = decodeJson(res.text) 
+    end, function(err)  end)
+end
 
 local mainFrame = imgui.OnFrame(function() return menu.alpha > 0.00 end,
 function(player)
@@ -349,7 +354,16 @@ function(player)
 
 
         if cfg.is_upd_to_date then
-            imgui.Button('Poxyi')
+            if changelog == nil then
+                imgui.Text(u8'Получаю информацию о последних изменениях...')
+                CircularProgressBar(20, 25, 5)
+            else
+                imgui.Text(changelog[1].comit.autor.date)
+            end
+            if imgui.Button('Poxyi + poebat') then
+                cfg.is_upd_to_date = false
+                cfg()
+            end
         else 
 
             addons[select].gui(self)
