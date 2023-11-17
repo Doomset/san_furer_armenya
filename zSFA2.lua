@@ -268,6 +268,17 @@ end
 
 
 
+pickup = function (data)
+	index = shortPos(data.pos[1], data.pos[2], data.pos[3])
+
+	print(index)
+	
+	if not cfg.Пикапы[index] then
+		cfg.Пикапы[index] = data
+		Noti('Зарегистирован отсутствующий в базе пикап '..data.name, INFO)
+		cfg()
+	end
+end
 
 
 
@@ -287,10 +298,12 @@ main = function()
 
 
 
-
+	
 
 	require('sfa.imgui.onInitialize')
 
+	
+	
 	require 'sfa.samp'
 
 	require("sfa.timer")

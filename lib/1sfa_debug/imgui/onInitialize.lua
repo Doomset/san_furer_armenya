@@ -133,10 +133,10 @@ imgui.OnInitialize(function()
     style_color[imgui.Col.ModalWindowDimBg]      = vec4(0.00, 0.00, 0.00, 0.70)
 end)
 
-
+require('sfa.imgui.not')
 
 require('sfa.imgui.onScreen')
 require('sfa.imgui.menu')
-require('sfa.imgui.not')
+
 
 Noti('sfa - успешно загружен!')

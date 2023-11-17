@@ -281,9 +281,10 @@ local json = function(orig_t, save_name)
 	end
 
 	return setmetatable(load(), {
-		__call = function(self) save() end,
+		__call = function(self) save() end,	
 
 		__index = function(self, k)
+			
 			if not rawget(self, k) then
 				print(k, 'ключ не был найден в загруженных найстройках')
 
@@ -295,6 +296,10 @@ local json = function(orig_t, save_name)
 				end
 			end
 		end,
+
+		__newindex = function (t, k, v)
+			msg(k)
+		end
 
 	})
 end

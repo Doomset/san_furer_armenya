@@ -365,7 +365,7 @@ function(player)
                 CircularProgressBar(20, 25, 5)
             else
                 imgui.Text(changelog[1].commit.author.date)
-                imgui.Text(u8(changelog[1].commit.message))
+                imgui.Text(changelog[1].commit.message)
             end
             if imgui.Button('Poxyi + poebat') then
                 cfg.is_upd_to_date = false
