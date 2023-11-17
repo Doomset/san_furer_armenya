@@ -207,7 +207,11 @@ end
 
 
 sampRegisterChatCommand('sfa_upd', update)
-sampRegisterChatCommand('sfa_debug', function () cfg.debug = not cfg.debug; cfg(); end)
+sampRegisterChatCommand('sfa_debug', function ()
+	cfg.debug = not cfg.debug;
+	msg( (cfg.debug and 'Дебаг включён, ' or 'Дебаг выключен, ')..'перезагрузка...')
+	cfg();thisScript():reload()
+end)
 
 
 

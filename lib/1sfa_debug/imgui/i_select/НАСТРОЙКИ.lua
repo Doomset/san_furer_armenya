@@ -63,11 +63,6 @@ local t = {
 		imgui.SetCursorPosY(3)
 		imgui.BeginChild("выбор вкладок - настройки", imgui.ImVec2(120, 287), true)
 		imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(0.1, 1))
-		local b = imgui.new.bool(cfg.debug)
-		if imgui.Checkbox('Debug', b) then
-			cfg.debug = b[0]
-			cfg()
-		end
 --		seletable('upd', self.select, update.gui)
 		for k, v in ipairs(self.functions) do
 			extra.Separator()

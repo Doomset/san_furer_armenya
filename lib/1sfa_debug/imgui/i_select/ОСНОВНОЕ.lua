@@ -49,9 +49,11 @@ end
 
 
 for i = 1, 3, 1 do -- если нет в конфиге элемента - добавляется из файла
-	for _, v2 in ipairs(getFilesInPath(getWorkingDirectory().."\\sfa\\select\\" .. list[i].name, '*.lua')) do
+	for _, v2 in ipairs(getFilesInPath("\\sfa\\select\\" .. list[i].name, '*.lua')) do
 		v2 = v2:gsub('%.lua', '')
+		print(v2)
 		if not find(v2) then
+			--Noti(v2)
 			require_function(i, #list[i].name + 1, list[i].name, v2)
 		end
 	end

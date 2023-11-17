@@ -170,10 +170,11 @@ setmetatable(tabs,
 
                             self.current                             = i
                          
-                            cfg.last.current = i
-                            cfg()
+                           
                             self.animate_child.switch(1)
                         end)
+                        cfg.last.current = i
+                        cfg()
                     end
                 end
 
@@ -352,7 +353,7 @@ function(player)
        
 
 
-        imgui.Text('changelog')
+        if cfg.debug then imgui.Text('debug') end
 --        extra.Hint('ddd')
     end, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoScrollbar + imgui.WindowFlags.NoScrollWithMouse + imgui.WindowFlags.NoCollapse)
 
