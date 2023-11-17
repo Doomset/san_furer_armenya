@@ -352,9 +352,8 @@ function(player)
        
 
 
-        imgui.PushFont(font[10])
-        imgui.Text('build '..cfg.build)
-        imgui.PopFont()
+        imgui.Text('changelog')
+--        extra.Hint('ddd')
     end, imgui.WindowFlags.NoResize + imgui.WindowFlags.NoScrollbar + imgui.WindowFlags.NoScrollWithMouse + imgui.WindowFlags.NoCollapse)
 
 

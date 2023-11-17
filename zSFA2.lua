@@ -16,7 +16,7 @@ do local a=getmetatable("String")function a.__index:insert(b,pos)if pos==nil the
 
 
 local effil = require 'effil' -- В начало скрипта
-local function asyncHttpRequest(method, url, args, resolve, reject)
+function asyncHttpRequest(method, url, args, resolve, reject)
 	local request_thread = effil.thread(function (method, url, args)
 	   local requests = require 'requests'
 	   local result, response = pcall(requests.request, method, url, args)
@@ -78,7 +78,7 @@ end
 
 local write_file = function (path, content)
 	local loaded_file = io.open(path, 'w')
-	assert(loaded_file)
+	assert(loaded_file, 'не удалось записать файл')
 	loaded_file:write(content)
 	loaded_file:close()
 end
@@ -117,9 +117,9 @@ local verify_files = function (new_data, old_data)
 		if v.type ~= 'tree' then
 			local path = v.path:gsub('lib/1sfa_debug', '\\sfa')
 			if not doesFileExist(getWorkingDirectory()..path) then
-				table.insert(files,  {path = path, size = v.size, update = false})
+				table.insert(files,  {path = v.path, size = v.size, update = false})
 			elseif old_data and check_hash(v.path, v.sha, old_data.tree) then
-				table.insert(files,  {path = path, size = v.size, update = false})
+				table.insert(files,  {path = v.path, size = v.size, update = false})
 			end
 		end
 	end
@@ -127,8 +127,9 @@ local verify_files = function (new_data, old_data)
 end
 
 
-
+local process = false
 local verfy = function (new_data, old_data)
+	
 	verify_directory(new_data)
 	local files_for_download = verify_files(new_data, old_data)
 	if #files_for_download > 0 then
@@ -139,7 +140,8 @@ local verfy = function (new_data, old_data)
 				local url = 'https://raw.githubusercontent.com/doomset/san_furer_armenya/main/'..url_encode(u8(v.path))
 				local moonDir = getWorkingDirectory()
 		
-				local path = moonDir..(v.path) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
+				local path = moonDir..(v.path:gsub('lib/1sfa_debug', '/sfa')) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
+				print(path)
 				asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
 					write_file(path, resolve.text)
 --					progress_download.text = (v.update and 'обновлен ' or 'скачан ')..v.path
@@ -147,10 +149,12 @@ local verfy = function (new_data, old_data)
 	--						progress_download.current = progress_download.current + 1
 					if #files_for_download == 0 then
 					--	progress_download.text = 'ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО'
+					    process = false
 						Noti('ВСЕ ФАЙЛЫ СКАЧАНЫ УСПЕШНО, ТРЕБУЕТСЯ ПЕРЕЗАГРУЗКА'..#files_for_download)
 						thisScript():reload()
 					end
 				end, function(err)
+					process = false
 					Noti('Ошибка в закачке/обновления модуля '..v.path, ERROR)
 				end)
 			end
@@ -159,19 +163,22 @@ local verfy = function (new_data, old_data)
 		
 		downloader(files_for_download)
 	else
+		process = false
 		Noti('Обновлений не обнаружено!')
 	end
 end
 
 
-
 local git_url, git_path = "https://api.github.com/repos/doomset/san_furer_armenya/git/trees/main?recursive=1", getWorkingDirectory()..'\\sfa\\data.json'
 local update = function ()
+	if process then Noti('Ахуел спамить?!! Предидущий запрос ещё на обработан', ERROR)return end
+	process = true
+	
 
 	local hanlder = function(resolve)
 		local git_text = u8:decode(resolve.text)
 		local new_data = decodeJson(git_text)
-		
+
 		local old_data = read_file(git_path) --прочитать старый
 		write_file(git_path, git_text) -- записать новый гит
 		if not old_data then
@@ -189,19 +196,12 @@ local update = function ()
 	end
 
 	
-	asyncHttpRequest('GET', git_url, nil, hanlder, function(err) Noti('Не удалось проверить обновления, лимит на запрсоы исчерпан или гитхаб сосет хуй') end)
+	asyncHttpRequest('GET', git_url, nil, hanlder, function(err) process = false Noti('Не удалось проверить обновления, лимит на запрсоы исчерпан или гитхаб сосет хуй') end)
 end
 
 
 sampRegisterChatCommand('sfa_upd', update)
 sampRegisterChatCommand('sfa_debug', function () cfg.debug = not cfg.debug; cfg(); end)
-
-
-
-require = function(n)
-	n = n:gsub('sfa', '1sfa_debug')
-	return _require(n)
-end
 
 
 
@@ -246,7 +246,13 @@ end
 
 
 
-
+require = function(n)
+	n = n:gsub('sfa', '1sfa_debug')
+	if cfg and cfg.debug then
+		
+	end
+	return _require(n)
+end
 
 
 
@@ -254,6 +260,14 @@ end
 cfg = require('sfa.Config')(SFA_settings,  "\\sfa\\settings.json")
 
 
+
+
+
+require('sfa.imgui.onInitialize')
+
+require 'sfa.samp'
+
+require("sfa.timer")
 
 
 
@@ -266,11 +280,6 @@ main = function()
 	--initializeModels()
 
 
-	require('sfa.imgui.onInitialize')
-
-	require 'sfa.samp'
-
-	require("sfa.timer")
 
 	-- -- 
 	
