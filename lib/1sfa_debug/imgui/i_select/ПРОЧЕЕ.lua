@@ -69,9 +69,11 @@ end
 
 
 
-for _, v2 in ipairs(getFilesInPath(getWorkingDirectory().."\\sfa\\select\\other" , '*.lua')) do
+for _, v2 in ipairs(getFilesInPath("\\sfa\\select\\other" , '*.lua')) do
 	v2 = v2:gsub('%.lua', ''):trim()
+	print(v2)
 	if not find(v2) then
+		msg(v2)
 		require_function(#list + 1, v2)
 	end
 end

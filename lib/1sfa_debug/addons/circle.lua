@@ -1,19 +1,28 @@
 local t, imgui, ffi = {}, require('mimgui'), require('ffi')
 local new, str, sizeof = imgui.new, ffi.string, ffi.sizeof
 --
+
+
+
+local l_cfg = require('sfa.Config')({
+	state = true,
+
+},  "\\sfa\\addons\\circle.json")
+
+
+
+
 t.gui = function ()
 	imgui.PushStyleVarFloat(imgui.StyleVar.ChildRounding, 0)
    
 	imgui.SetCursorPos{20, 50}
 	imgui.BeginChild("CIRCLE", imgui.ImVec2(550, 290), true)
 
+	local b = new.bool(l_cfg.state)
+	
+	if imgui.Checkbox(u8('Статус'), b) then
+		l_cfg.state = b[0]
 
-	for k, v in pairs(cfg.cirle) do
-		local bool = imgui.new.bool(v)
-		if imgui.Checkbox(u8(k), bool) then
-			cfg.cirle[k] = bool[0]
-			cfg()
-		end
 	end
 
 	
@@ -503,10 +512,5 @@ end)
 
 
 
-
-if not cfg.circle then
-	cfg.cirle = {Статус = true}
-	cfg()
-end
 
 return t

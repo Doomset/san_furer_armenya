@@ -1,0 +1,1 @@
+return  {thisScript().name, 'GUN',  true, "Залупа хуй говно", gui}

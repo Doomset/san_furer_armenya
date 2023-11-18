@@ -1,6 +1,7 @@
 SFA_settings = {
 
 	is_upd_to_date = false,
+	
 	build = '',
 	autoupdate = false,
 	piska = 1,

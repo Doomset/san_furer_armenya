@@ -269,9 +269,8 @@ end
 
 
 pickup = function (data)
-	index = shortPos(data.pos[1], data.pos[2], data.pos[3])
+	index = tostring(data.index)
 
-	print(index)
 	
 	if not cfg.Пикапы[index] then
 		cfg.Пикапы[index] = data
