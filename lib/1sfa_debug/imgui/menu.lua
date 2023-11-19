@@ -343,21 +343,26 @@ local changelog
 local t1
 if cfg.is_upd_to_date then
     asyncHttpRequest('GET', url, nil, function (res)
-        t1 = decodeJson(res.text)
+        changelog = decodeJson(res.text)
+        changelog = {
+            -- files = decodeJson(res.text).tree,
+            date = t1[1].commit.author.date,
+            message = t1[1].commit.message,
+        }
     end, function(err)  end)
 
-    lua_thread.create(function ()
-        while t1 == nil do wait(0) end
+    -- lua_thread.create(function ()
+    --     while t1 == nil do wait(0) end
 
-        asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
-            changelog = {
-                files = decodeJson(res.text).tree,
-                date = t1[1].commit.author.date,
-                message = t1[1].commit.message,
-            }
-        end, function(err)  end)
+    --     asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
+    --         changelog = {
+    --             files = decodeJson(res.text).tree,
+    --             date = t1[1].commit.author.date,
+    --             message = t1[1].commit.message,
+    --         }
+    --     end, function(err)  end)
         
-    end)
+    -- end)
 end
 
 
@@ -383,7 +388,7 @@ function(player)
                     local calc_text = imgui.CalcTextSize(text)
                     imgui.SetCursorPos{window_size.x / 2 - calc_text.x / 2}
                     imgui.Text(text)
-                    imgui.SetCursorPos{window_size.x / 2 - 30, window_size.y / 2 - 60}
+                    imgui.SetCursorPos{window_size.x / 2 - 30, 30}
             
                     CircularProgressBar(60, 25, 5)
                 else
@@ -391,9 +396,9 @@ function(player)
                     imgui.Text(changelog.message)
                    
                     imgui.Text(u8"Изменения произошли в следующих файлах:")
-                    for index, value in ipairs(changelog.files) do
-                        imgui.Text(value.path)
-                    end
+                    -- for index, value in ipairs(changelog.files) do
+                    --     imgui.Text(value.path)
+                    -- end
                 end
                 if imgui.Button('Poxyi + poebat') then
                     cfg.is_upd_to_date = false
