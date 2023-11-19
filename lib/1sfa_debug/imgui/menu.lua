@@ -340,19 +340,25 @@ end
 
 local url = 'https://api.github.com/repos/doomset/san_furer_armenya/commits'
 local changelog
+local t1
 if cfg.is_upd_to_date then
     asyncHttpRequest('GET', url, nil, function (res)
-        local t1 = decodeJson(res.text)
-
-        asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
-            changelog = {
-                files = decodeJson(res.text).tree,
-                date = t1[1].commit.author.date,
-                message = t1[1].commit.message,
-            }
-        end, function(err)  end)
+        t1 = decodeJson(res.text)
     end, function(err)  end)
 end
+lua_thread.create(function ()
+    while t1 == nil do wait(0) end
+    
+    asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
+        changelog = {
+            files = decodeJson(res.text).tree,
+            date = t1[1].commit.author.date,
+            message = t1[1].commit.message,
+        }
+    end, function(err)  end)
+    
+end)
+
 
 local mainFrame = imgui.OnFrame(function() return menu.alpha > 0.00 end,
 function(player)
@@ -383,6 +389,7 @@ function(player)
                     imgui.Text(changelog.date)
                     imgui.Text(changelog.message)
                    
+                    imgui.Text(u8"Изменения произошли в следующих файлах:")
                     for index, value in ipairs(changelog.files) do
                         imgui.Text(value.path)
                     end
