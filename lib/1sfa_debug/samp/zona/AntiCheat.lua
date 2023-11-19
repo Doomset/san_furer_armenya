@@ -93,11 +93,11 @@ NoKick = function(fast)
     if has_timer then return end
 
     if res_id then
-        msg('veh id')
         timer("abuse", 6)
         sampSendExitVehicle(res_id)
     else
         if fast then
+            Noti('ffast')
             mode_2()
         else
             local surf = function (state)

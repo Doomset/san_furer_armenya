@@ -23,7 +23,6 @@ require('lib.samp.events').onSendPlayerSync = function(data)
 
     --local surf = handler.has('surf')
     if SurfingSync and cfg["Лодка"].block == false then
-     --   msg('da')
         data.surfingVehicleId = cfg["Лодка"].id
     end
 

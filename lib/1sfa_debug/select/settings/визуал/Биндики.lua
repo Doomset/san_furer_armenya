@@ -87,7 +87,6 @@ local list =
       
         table_sort(t2, function(a, b)
             if a.keys == nil or b.keys == nil then return false end
-            print(#a.keys, #b.keys)
             return (#a.keys > #b.keys)
          end)
     

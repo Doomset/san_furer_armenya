@@ -1,5 +1,6 @@
-require("sfa.samp.funcs")
 require("sfa.samp.handlers")
+require("sfa.samp.funcs")
+
 
 --zona 
 require("sfa.samp.zona")
