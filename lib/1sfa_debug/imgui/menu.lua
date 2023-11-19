@@ -395,8 +395,7 @@ function(player)
                 else
                     imgui.Text(changelog.date)
                     imgui.Text(changelog.message)
-                   
-                    imgui.Text(u8"Изменения произошли в следующих файлах:")
+    
                     -- for index, value in ipairs(changelog.files) do
                     --     imgui.Text(value.path)
                     -- end
