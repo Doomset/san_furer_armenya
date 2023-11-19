@@ -32,7 +32,7 @@ local catch = function (index, info)
 end
 
 
-local curent_index_for_handler = 0
+local curent_index_for_handler = 1
 
 local last_delay = 0
 
@@ -42,17 +42,21 @@ addEventHandler('onReceiveRpc', function(id, bs)
         if id == 61 then
             local did = raknetBitStreamReadInt16(bs)
             raknetBitStreamIgnoreBits(bs, 8)
-            local style = raknetBitStreamReadInt8(bs)
             local title = raknetBitStreamReadString(bs, raknetBitStreamReadInt8(bs))
             local btn1 = raknetBitStreamReadString(bs, raknetBitStreamReadInt8(bs))
             local btn2 = raknetBitStreamReadString(bs, raknetBitStreamReadInt8(bs))
             local stri = raknetBitStreamDecodeString(bs, 4096)
 
             if title:find(act.dialogs[curent_index_for_handler].name) then
+
                 sampSendDialogResponse(did, 1, 0, '')
                 local is_cd = stri:match(': Осталось (%d+)')
 
-                if is_cd then raise_error = 'В школе кд! Ещё осталось '..is_cd return false end
+                if is_cd then
+                    raise_error = 'В школе кд! Ещё осталось '..is_cd
+                    
+                    return false
+                end
 
                 last_delay = 4000
                 act.dialogs[curent_index_for_handler].wait = false

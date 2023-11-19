@@ -7,11 +7,7 @@ require('lib.samp.events').onSendPlayerSync = function(data)
 	-- 	core["Прочее"].Синхра[1][1] = "surf"
     --     core["Прочее"].Синхра[1][2] = "PERSON"
 	-- end
-
-    if core["Прочее"].Синхра[5][3] then
-        data.surfingVehicleId = 2228
-    end
-
+    
     -- if doesCharExist(pedFerma) then
     --     local angle = getCharHeading(PLAYER_PED)
     --     local _, name = sampGetAnimationNameAndFile(data.animationId)

@@ -44,6 +44,7 @@ local list = {}
 
 local require_function = function(pos, name)
 	local req = require('sfa.select.other.' .. name)
+
 	table.insert(list, pos, req)
 	table.insert(Loaded_Icons, req[2])
 end
@@ -71,9 +72,9 @@ end
 
 for _, v2 in ipairs(getFilesInPath("\\sfa\\select\\other" , '*.lua')) do
 	v2 = v2:gsub('%.lua', ''):trim()
-	print(v2)
+	
 	if not find(v2) then
-		msg(v2)
+		print(v2)
 		require_function(#list + 1, v2)
 	end
 end

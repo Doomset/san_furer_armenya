@@ -95,15 +95,19 @@ local function setCurrentDialogPosition(x, y)
     mem.write(CDXUTDialog + 0x11A, y, 4, true)
 end
 
-
+if not cfg.last.on then
+    cfg.last.on = false
+    cfg()
+end
 
 if isSampAvailable() then
-    if cfg.last.menu then
+    if cfg.last.on and cfg.last.menu then
         tabs.current = cfg.last.current
         tabs.animate_child.switch(1)
         menu.switch()
-    else tabs.animate_child.switch(1) end
-else tabs.animate_child.switch(1) end
+    else 
+        tabs.current = 2; tabs.animate_child.switch(1) end
+else tabs.current = 2; tabs.animate_child.switch(1) end
 
 
 local icon = require('sfa.imgui.icon')
@@ -247,6 +251,7 @@ end
 local addons = {['sfa'] = {gui = function (self) gui_sfa(self) end}}
 
 
+
 for addon, state in pairs(cfg.addons) do
    if state then
       local data = require('sfa.addons.'..addon)
@@ -337,7 +342,15 @@ local url = 'https://api.github.com/repos/doomset/san_furer_armenya/commits'
 local changelog
 if cfg.is_upd_to_date then
     asyncHttpRequest('GET', url, nil, function (res)
-        changelog = decodeJson(res.text) 
+        local t1 = decodeJson(res.text)
+
+        asyncHttpRequest('GET', t1[1].tree.url, nil, function(res)
+            changelog = {
+                files = decodeJson(res.text).tree,
+                date = t1[1].commit.author.date,
+                message = t1[1].commit.message,
+            }
+        end, function(err)  end)
     end, function(err)  end)
 end
 
@@ -362,7 +375,7 @@ function(player)
                 imgui.Text(text)
                 imgui.SetCursorPos{window_size.x / 2 - 30, window_size.y / 2 - 60}
         
-                CircularProgressBar(20, 25, 5)
+                CircularProgressBar(60, 25, 5)
             else
                 imgui.Text(changelog[1].commit.author.date)
                 imgui.Text(changelog[1].commit.message)
@@ -371,8 +384,7 @@ function(player)
                 cfg.is_upd_to_date = false
                 cfg()
             end
-        else 
-
+        else
             addons[select].gui(self)
         end
        

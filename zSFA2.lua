@@ -259,7 +259,6 @@ end
 
 
 require = function(n)
-	--n = n:gsub('sfa', '1sfa_debug')
 	if cfg and cfg.debug then
 		n = n:gsub('sfa', '1sfa_debug')
 	end

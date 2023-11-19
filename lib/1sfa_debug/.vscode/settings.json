@@ -4,7 +4,6 @@
     ],
     "Lua.runtime.unicodeName": true,
     "Lua.diagnostics.disable": [
-        "undefined-global",
         "param-type-mismatch",
         "missing-parameter",
         "assign-type-mismatch",

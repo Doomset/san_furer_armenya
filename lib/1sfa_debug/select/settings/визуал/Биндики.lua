@@ -12,7 +12,11 @@ imgui.Separator = extra.Separator
 
 local que = cfg['Бинды'].que
 
-local binds_from_settings = cfg['Бинды'].list
+
+
+local load_string, table_sort, copy_table = loadstring, table.sort, function(t) return {table.unpack(t)} end
+
+local binds_from_settings = copy_table(cfg['Бинды'].list)
 
 
 
@@ -57,14 +61,10 @@ local gui = function ()
 end
 
 
-local load_string, table_sort, copy_table = loadstring, table.sort, function(t) return {table.unpack(t)} end
 
 
 
-
-
-
-
+local bind_thread = {nil,nil}
 
 local list =
 {
@@ -72,47 +72,47 @@ local list =
 
     hookKeys = function(self, keys_in_hook)
 
-        local t = copy_table(self.dick)
+        local t = self.dick
 
-
-        -- for i = 1, #t do
-        --     local t = t[i]
-        --     for k, v in ipairs(t) do
-        --         if v.keys and #v.keys > #t[i][k].keys end
-        --     end
-        -- end
-     
-
-  
+        local t2 = {}
 
         for i = 1, #t do
             local v = t[i]
-
-            local br = false
-            
-            for i, v in ipairs(v) do
-
-                if v.on and v.keys and not sampIsChatInputActive() and not sampIsDialogActive() then
-                    local sovp, savp2 = #v.keys, 0
-                    for i = 1, #keys_in_hook do
-                        for i2 = 1, #v.keys do
-                            if keys_in_hook[i] == v.keys[i2] then
-                                savp2 = savp2 + 1
-                                break
-                            end
-                        end
-                    end
-                    if sovp == savp2 then
-                        local res, reason = pcall(load_string(v.func))
-                        if reason then Noti(reason, INFO) end
-                        --Noti(v.name, INFO)
-                        hot_list = self.dick;
-                        br = true
-                        break;
-                    end
+            for _, v in ipairs(v) do
+                if v.on then
+                    t2[#t2+1] =v
                 end
             end
-            if br then break; end
+        end
+      
+        table_sort(t2, function(a, b)
+            if a.keys == nil or b.keys == nil then return false end
+            print(#a.keys, #b.keys)
+            return (#a.keys > #b.keys)
+         end)
+    
+
+
+
+
+        for i, v in ipairs(t2) do
+
+            if v.on and v.keys and not sampIsChatInputActive() and not sampIsDialogActive() then
+                local sovp, savp2 = #v.keys, 0
+                for i = 1, #keys_in_hook do
+                    for i2 = 1, #v.keys do
+                        if keys_in_hook[i] == v.keys[i2] then
+                            savp2 = savp2 + 1
+                            break
+                        end
+                    end
+                end
+                if sovp == savp2 then
+                    local res, reason = pcall(load_string(v.func))
+                    if reason then Noti(reason, INFO) end
+                    return
+                end
+            end
         end
     end
 }

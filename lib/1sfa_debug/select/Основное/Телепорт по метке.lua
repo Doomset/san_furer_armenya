@@ -17,14 +17,14 @@ local lodka = function (x, y ,z)
    -- self.state = 'surfing///'
     timer('surf lodka', 1.2, function ()
         timeout(); BlockSync = false
-        setCharCoordinatesDontResetAnim(PLAYER_PED, x, y, z + 1)
-        restoreCameraJumpcut()
+        
         --self.active.handle = false
         
     end)
 end
 
 local scan = require('sfa.samp.zona.AntiCheat').scan
+
 
 
 
@@ -55,8 +55,11 @@ return
            -- self.active.handle = false
             return
         end
+        NoKick()
 
-        lodka(x, y, z)
+        setCharCoordinatesDontResetAnim(PLAYER_PED, x, y, z + 1)
+        restoreCameraJumpcut()
+        -- lodka(x, y, z)
         -- if isCharInAnyCar(PLAYER_PED) then setCarCoordinates(storeCarCharIsInNoSave(PLAYER_PED), x, y, z) else
         -- 	if getActiveInterior() ~= 0 then
         -- 		--sampSendInteriorChange(0)

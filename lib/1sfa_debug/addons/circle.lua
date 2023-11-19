@@ -48,18 +48,58 @@ local function GetBodyPartCoordinates(id, handle)
 	return vec[0], vec[1], vec[2]
 end
 
+
+
+local function getCarFreeSeat(car)
+	if doesCharExist(getDriverOfCar(car)) then
+		local maxPassengers = getMaximumNumberOfPassengers(car)
+		for i = 0, maxPassengers do
+			if isCarPassengerSeatFree(car, i) then
+				return i + 1
+			end
+		end
+		return nil -- no free seats
+	else
+		return 0 -- driver seat
+	end
+end
+
+
+local function isCarLightsOn(car) return (readMemory(getCarPointer(car) + 0x428, 1) > 62) end
+local function jumpIntoCar(car, bool) -- by FYP
+	local seat = getCarFreeSeat(car)
+  
+	if not seat then return false end -- no free seats
+  
+	local _, carid = sampGetVehicleIdByCarHandle(storeCarCharIsInNoSave(PLAYER_PED))
+  
+	if _ and isCharInAnyCar(PLAYER_PED) then sampSendExitVehicle(carid) end 
+  
+  
+	if bool then sampForceOnfootSync()  end
+			   
+	if seat == 0 then warpCharIntoCar(PLAYER_PED, car)         -- driver seat
+	else warpCharIntoCarAsPassenger(PLAYER_PED, car, seat - 1) -- passenger seat
+	end
+	restoreCameraJumpcut()
+	return true, seat
+  end
+  
+  
+
+
 local LabelText  =
 {
 	[1] = {"ПИКАПЫ", 0xffFFFF00,
 		{
-			{key = VK_1, name = '1 - Взять пикап с фейк позицией', func = 
+			{ name = 'Взять пикап с фейк позицией', func = 
 			function(x, y, z, pickupId, dist)
 				
 			    if dist < 15 then msg("+") return sampSendPickedUpPickup(pickupId)  end
 				SendSync{ pos = {x, y, z}, pick = pickupId, force = true}
 			end},
 
-			{key = VK_2, name = '2 - Скопировать координаты пикапа', func =    
+			{ name = 'Скопировать координаты пикапа', func =    
 			function(_, _, _, id)
 				local pickup = sampGetPickupHandleBySampId(id)
 				local x, y, z = getPickupCoordinates(pickup)
@@ -67,12 +107,12 @@ local LabelText  =
 				setClipboardText(string.format("%.f, %.f, %.f", x, y, z))
 			end},
 
-			{key = VK_3, name = '3 - Тепнуться рядом с пикапом', func = 
+			{ name = 'Тепнуться рядом с пикапом', func = 
 			function(x, y, z, _)
 				setCharCoordinatesDontResetAnim(PLAYER_PED, x, y, z)
 			end},
 
-			{key = VK_4, name = '4 - Скопировать ид пикапа', func = 
+			{ name = 'Скопировать ид пикапа', func = 
 			function(_, _, _, pickupId)
 				sampAddChatMessage(string.format("{EB4E20}[Dev-Help]{FFFFFF} Pickup %d (Coped to clipboard)", pickupId), 0x84FF09)
 				setClipboardText(string.format("%d", pickupId))
@@ -82,7 +122,7 @@ local LabelText  =
 
 	[2] = {"ИГРОКИ", 0xFFf542d4, 
 		{
-			{key = VK_1, name = '1 - На исполку', func =
+			{ name = 'На исполку', func =
 			function(x, y, z, id, dist, hand)
 				if not isCarModel(storeCarCharIsInNoSave(PLAYER_PED), 470) then return msg2("ne tot modelid") end
 
@@ -108,23 +148,13 @@ local LabelText  =
 				end)
 			end},
 
-			{key = VK_2, name = '2 - кинуть пулю',  func =
+			{ name = 'кинуть пулю',  func =
 			function(x, y, z, id, _, hand)
-				NoKick()
-				local function rand() return math.random(-50, 50) / 100 end
-				for i=1, 1 do
-					local data = samp_create_sync_data('bullet', false)
-					data.targetType = 1
-					data.targetId = id
-					data.center = {x = rand(), y = rand(), z = rand()}
-					data.origin.x, data.origin.y, data.origin.z = getActiveCameraCoordinates()
-					data.target.x, data.target.y, data.target.z = x, y, z
-					data.weaponId = 24
-					data.send()
-				end
+		
+
 			end},
 
-			{key = VK_3, name = '3 - хуй',  func =
+			{ name = 'хуй',  func =
 			function(x, y, z)
 				for i=1, 2000 do
 					local _, veh = sampGetCarHandleBySampVehicleId(i)
@@ -145,12 +175,12 @@ local LabelText  =
 				end
 			end},
 			
-			{key = VK_4, name = '4 - Скопировать ид пикапа',         func =
+			{ name = 'Скопировать ид пикапа',         func =
 			function(x, y, z, id)
 				SendSync(x, y, z, key, pic, sampSendChat("/украсть "..id), true)
 			end},
 			
-			{key = VK_5, name = '5 - Скопировать координаты пикапа',    func =
+			{ name = 'Скопировать координаты пикапа',    func =
 			function(_, _, _, id)
 				getoos(id)
 			end},
@@ -159,7 +189,7 @@ local LabelText  =
 
 	[3] = {"ТРАНСПОРТ", 0xFFFFAB00,
 		{
-			{key = VK_1, name = '1 - Сесть в транспорт', func =
+			{ name = 'Сесть в транспорт', func =
 			function(x, y, z, carId, _, car)
 				local bool, seat = jumpIntoCar(car, true) -- warp
 
@@ -179,7 +209,7 @@ local LabelText  =
 				BlockSync = false
 			end},
 
-			{key = VK_2, name = '2 - Сесть в чужую', func =
+			{ name = 'Сесть в чужую', func =
 			function(x, y, z, carId, _, car)
 				local f = function()
 					if isCharInAnyCar(PLAYER_PED) then return true end 
@@ -219,7 +249,7 @@ local LabelText  =
 				BlockSync = false
 			end},
 
-			{key = VK_3, name = '3 - Заспавнить транспорт',func =
+			{ name = 'Заспавнить транспорт',func =
 			function(_, _, _, carId, _, car)
 				if tableHandlers[car] then return msg2("Уже респавниться") end
 				if not isCarFree(car) then return msg2("Машина не пустая") end
@@ -236,25 +266,25 @@ local LabelText  =
 				setCharCoordinatesDontResetAnim(PLAYER_PED, x, y, z)
 			end},
 
-			{key = VK_2, name = '2 - Тепнуться рядом с пикапом', func =
+			{ name = 'Тепнуться рядом с пикапом', func =
 			function(x, y, z, _, _)
 				
 				
 			end},
 
-			{key = VK_3, name = '3 - Тепнуться рядом с пикапом',  func =
+			{ name = 'Тепнуться рядом с пикапом',  func =
 			function(x, y, z)
 				print(x, y, z)
 				SendSync(x, y, z, 16)
 			end},
 			
-			{key = VK_4, name = '4 - Скопировать ид пикапа', func =
+			{ name = 'Скопировать ид пикапа', func =
 			function(_, _, _, id)
 				sampAddChatMessage(string.format("{EB4E20}[Dev-Help]{FFFFFF} object %d (Coped to clipboard)", id), 0x84FF09)
 				setClipboardText(string.format("%d", id))
 			end},
 			
-			{key = VK_5, name = '5 - Скопировать координаты пикапа',  func =
+			{ name = 'Скопировать координаты пикапа',  func =
 			function(_, _, _, id)
 				getoos(id)
 			end},
@@ -457,7 +487,8 @@ function(can)
             addText(imgui.ImVec2(cX + 70, cnY), color, u8(v.name))
             imgui.PopFont()
 
-            if imgui.IsKeyReleased(v.key) then
+		
+            if imgui.IsKeyReleased(48 + k) then
                 v.func(x, y, z, id, dist, hand)
             end
 

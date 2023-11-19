@@ -1,15 +1,17 @@
 SFA_settings = {
 
+
 	is_upd_to_date = false,
-	
+
 	build = '',
 	autoupdate = false,
 	piska = 1,
 	req_limit = 0,
 	debug = false,
-	addons = { circle = false },
+	addons = {circle = false, checker = false, players = false, dick = false},
 
 	last = {
+		on = false,
 		name = 'Основное',
 		current = 2,
 		select = { НАСТРОЙКИ = 'Биндики', ПРОЧЕЕ = 1 },
@@ -251,9 +253,53 @@ SFA_settings = {
 --mark2
 
 
+
+function tableToString(tbl, indent)
+    local function formatTableKey(k)
+        local defaultType = type(k);
+        if (defaultType ~= 'string') then
+            k = tostring(k);
+        end
+        local useSquareBrackets = k:find('^(%d+)') or k:find('(%p)') or k:find('\\') or k:find('%-');
+        return useSquareBrackets == nil and k or ('[%s]'):format(defaultType == 'string' and "'" .. k .. "'" or k);
+    end
+    local str = { '{' };
+    local indent = indent or 0;
+    for k, v in pairs(tbl) do
+        table.insert(str, ('%s%s = %s,'):format(string.rep("    ", indent + 1), formatTableKey(k), type(v) == "table" and tableToString(v, indent + 1) or (type(v) == 'string' and "'" .. v .. "'" or tostring(v))));
+    end
+    table.insert(str, string.rep('    ', indent) .. '}');
+    return table.concat(str, '\n');
+end
+
+
 local json = function(orig_t, save_name)
 	local loaded_table
 	local f
+
+
+	local _, subFilledCount
+	local function __fillEmptyKeys(default, current)
+		local filledCount = 0;
+		for key, value in pairs(default) do
+			if (current[key] == nil) then
+				if (type(value) == 'table') then
+					current[key] = {};
+					_, subFilledCount = __fillEmptyKeys(value, current[key]);
+					filledCount = filledCount + subFilledCount;
+				else
+					current[key] = value;
+					filledCount = filledCount + 1;
+				end
+			elseif (type(value) == 'table' and type(current[key]) == 'table') then
+				_, subFilledCount = __fillEmptyKeys(value, current[key]);
+				filledCount = filledCount + subFilledCount;
+			end
+		end
+	
+		return current, filledCount
+	end
+	
 
 
 
@@ -269,16 +315,33 @@ local json = function(orig_t, save_name)
 	end
 
 	local load = function()
+		print(1)
 		f = io.open(getWorkingDirectory() .. save_name, 'r')
 		if not f then
 			print('Сохранение оригинальной')
 			return save(true)
 		end
+		
 		loaded_table = decodeJson(f:read('*a'))
 		f:close()
+
+		
+
+
+
 		if loaded_table == nil then print('Таблица повреждена, пересоздание') return save(true) end
 
-		return loaded_table
+
+		local d, w = __fillEmptyKeys(orig_t, loaded_table)
+
+	
+
+	
+		if w > 0 then print('ОТСУТСТВУЕТ ВФЫВШФВШЫ') end
+
+
+
+		return d
 	end
 
 	return setmetatable(load(), {
@@ -297,13 +360,9 @@ local json = function(orig_t, save_name)
 				end
 			end
 		end,
-
-		__newindex = function (t, k, v)
-			msg(k)
-		end
-
 	})
 end
+
 
 
 return json

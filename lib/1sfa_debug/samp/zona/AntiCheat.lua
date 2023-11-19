@@ -97,7 +97,16 @@ NoKick = function()
         timer("abuse", 6)
         sampSendExitVehicle(res_id)
     else
-        mode_2()
+        local surf = function (state)
+            IsCharSurfing = state
+            SurfingSync = state
+            sampForceOnfootSync()
+        end
+        pL('Ñ‏נפטל םא כמהךו')
+        surf(true)
+        wait(1100)
+        surf(false)
+
     end
 
     
@@ -136,26 +145,6 @@ end
 --     timers.aftertp = { os.clock(), 3 }
 --     --timers.timeoutAC = {os.clock(), 6}
 -- end
-
-
-
-function tableToString(tbl, indent)
-    local function formatTableKey(k)
-        local defaultType = type(k);
-        if (defaultType ~= 'string') then
-            k = tostring(k);
-        end
-        local useSquareBrackets = k:find('^(%d+)') or k:find('(%p)') or k:find('\\') or k:find('%-');
-        return useSquareBrackets == nil and k or ('[%s]'):format(defaultType == 'string' and "'" .. k .. "'" or k);
-    end
-    local str = { '{' };
-    local indent = indent or 0;
-    for k, v in pairs(tbl) do
-        table.insert(str, ('%s%s = %s,'):format(string.rep("    ", indent + 1), formatTableKey(k), type(v) == "table" and tableToString(v, indent + 1) or (type(v) == 'string' and "'" .. v .. "'" or tostring(v))));
-    end
-    table.insert(str, string.rep('    ', indent) .. '}');
-    return table.concat(str, '\n');
-end
 
 --print(tableToString(cfg))
 -- mode_2()
