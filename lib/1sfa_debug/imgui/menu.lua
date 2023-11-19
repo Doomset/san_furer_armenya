@@ -343,7 +343,7 @@ local changelog
 local t1
 if cfg.is_upd_to_date then
     asyncHttpRequest('GET', url, nil, function (res)
-        changelog = decodeJson(res.text)
+        local t1 = decodeJson(res.text)
         changelog = {
             -- files = decodeJson(res.text).tree,
             date = t1[1].commit.author.date,
