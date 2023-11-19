@@ -58,12 +58,18 @@ local t = {
 			end
 		end
 
+	
+
 		
 
 		imgui.SetCursorPosY(3)
 		imgui.BeginChild("выбор вкладок - настройки", imgui.ImVec2(120, 287), true)
 		imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(0.1, 1))
---		seletable('upd', self.select, update.gui)
+		--imgui.PushStyleColor(imgui.Col.Button, {0,0,0,0})
+		if imgui.Button('check upd') then
+			update()
+		end
+	--	imgui.PopStyleColor(1)
 		for k, v in ipairs(self.functions) do
 			extra.Separator()
 			imgui.SetCursorPosY(imgui.GetCursorPos().y  + 4)

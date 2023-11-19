@@ -5,16 +5,13 @@ local input = require('sfa.imgui.extra').input()
 
 
 
-
-
-
 local t = {}
 for k, v in pairs(cfg["Пикапы"]) do
     table.insert(t, {p = {v.pos[1], v.pos[2], v.pos[3]}, n = v.name, id = v.id})
 end
 table.sort(t, function(a,b ) return a.n < b.n end)
 
-
+local thread
 local gui = function ()
 
     if not imgui then imgui = require("mimgui") end
@@ -45,37 +42,61 @@ local gui = function ()
 
     imgui.PushFont(font[14])	
 
+    if thread ~= nil then
+        
+        local w_size = imgui.GetWindowSize()
+        imgui.SetCursorPos{w_size.x /2.3, w_size.y /3.5}
+        CircularProgressBar(60, 25, 5)
+    else  
+        for k, v in ipairs(selectMesta == 1 and cfg["Места"] or t) do
+            imgui.PushIDInt(k)
+            if input:filt(v.n) then
+                if input:active() then imgui.SetCursorPosX(imgui.GetWindowSize().x /2 - sb[1] / 2) end
+               
+
+                if ((input.is_clicked and #input.chars > 0) and imgui.IsItemClicked(0) or (icon_button(u8(v.n), sb))) then
+
+                    local f = function ()
+                        input:null()
+                        NoKick()
+                        setCharCoordinates(PLAYER_PED, v.p[1], v.p[2], v.p[3])
+                        Noti(string.format('Телепорт на координаты - %1.f, %1.f, %1.f %s[%d]', v.p[1], v.p[2], v.p[3], v.n, v.id), OK)
+                        thread = nil
+                    end
+                    thread = lua_thread.create_suspended(f)
+    
+                    thread:run()
+                elseif imgui.IsItemHovered() and imgui.IsMouseDoubleClicked(1) then
+
+                    local f = function ()
+                        input:null()
+                        NoKick()
+                        Noti(string.format('Отправлен пикап c фейк позицией - %s[%d]', v.n, v.id), INFO)
+                        SendSync{pos = {v.p[1], v.p[2], v.p[3]}, pick = v.id, force = true}
+                        thread = nil
+                    end
+                    thread = lua_thread.create_suspended(f)
+    
+                    thread:run()
 
 
-    for k, v in ipairs(selectMesta == 1 and cfg["Места"] or t) do
-        imgui.PushIDInt(k)
-        if input:filt(v.n) then
-            if input:active() then imgui.SetCursorPosX(imgui.GetWindowSize().x /2 - sb[1] / 2) end
+                   
+                end
 
-            if ((input.is_clicked and #input.chars > 0) and imgui.IsItemClicked(0) or (icon_button(u8(v.n), sb))) then
-                input:null()
-                NoKick()
-                setCharCoordinates(PLAYER_PED, v.p[1], v.p[2], v.p[3])
 
-                Noti(string.format('Телепорт на координаты - %1.f, %1.f, %1.f %s[%d]', v.p[1], v.p[2], v.p[3], v.n, v.id), OK)
-            elseif imgui.IsItemHovered() and imgui.IsMouseDoubleClicked(1) then
-                NoKick()
-                Noti(string.format('Отправлен пикап c фейк позицией - %s[%d]', v.n, v.id), INFO)
-                SendSync{pos = {v.p[1], v.p[2], v.p[3]}, pick = v.id, force = true}
+
+
+                if k%3 ~= 0  and not input:active() then imgui.SameLine() end
             end
-
-
-
-
-            if k%3 ~= 0  and not input:active() then imgui.SameLine() end
+            imgui.PopID()
         end
-        imgui.PopID()
+        if imgui.Button(u8("Добавить новое +"), sb) then 
+            mesta_name, mesta_text = new.char[28](u8""), new.char[28](u8"")
+            imgui.OpenPopup("mesta")
+        end
     end
 
-    if imgui.Button(u8("Добавить новое +"), sb) then 
-        mesta_name, mesta_text = new.char[28](u8""), new.char[28](u8"")
-        imgui.OpenPopup("mesta")
-    end
+  
 
     if imgui.BeginPopupModal("mesta", _, imgui.WindowFlags.NoCollapse) then
         imgui.Text(u8'Назв??ние места:')

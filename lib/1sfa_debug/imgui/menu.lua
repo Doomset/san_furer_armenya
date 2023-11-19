@@ -371,6 +371,10 @@ local mainFrame = imgui.OnFrame(function() return menu.alpha > 0.00 end,
 function(player)
     player.LockPlayer = input:active()
 
+    local dl = imgui.GetForegroundDrawList()
+
+    dl:AddText({1,1}, -1, 'edadadsasd')
+
     tabs:begin(function(self)
         if переключалка_чайлдов then self.animate_child.offset = extra.bringFloatTo(-200, 30,
                 переключалка_чайлдов, 0.1) end

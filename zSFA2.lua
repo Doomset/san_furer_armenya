@@ -177,7 +177,7 @@ end
 
 
 local git_url, git_path = "https://api.github.com/repos/doomset/san_furer_armenya/git/trees/main?recursive=1", getWorkingDirectory()..'\\sfa\\data.json'
-local update = function ()
+update = function ()
 	if process_update then Noti('Ахуел спамить?!! Предидущий запрос ещё на обработан', ERROR) return end
 	process_update = true
 	

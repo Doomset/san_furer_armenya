@@ -119,9 +119,10 @@ local ToU32 = imgui.ColorConvertFloat4ToU32
 local ToVEC = imgui.ColorConvertU32ToFloat4
 
 CircularProgressBar = function(value, radius, thickness, format)
-	local DL = imgui.GetWindowDrawList()
 	local p = imgui.GetCursorScreenPos()
 	local pos = imgui.GetCursorPos()
+	local DL = imgui.GetWindowDrawList()
+
 	local ts = nil
 
 	if type(format) == 'string' then
@@ -136,6 +137,7 @@ CircularProgressBar = function(value, radius, thickness, format)
 	local centre = imgui.ImVec2(p.x + radius + (thickness / 2), p.y + radius + (thickness / 2))
 
     imgui.BeginGroup()
+	 
 		imgui.Dummy(side) if imgui.IsItemClicked(0) then msg("DD") end
 
 		local corners = radius * 5

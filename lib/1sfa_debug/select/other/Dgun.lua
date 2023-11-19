@@ -7,6 +7,9 @@ local t = {}
     end
     table.sort(t, function(a, b) return a.id < b.id end )
 
+
+local thread
+
 local gui = function ()
     if not imgui then
         imgui = require('mimgui')
@@ -19,22 +22,33 @@ local gui = function ()
 
     imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(5, 0.5))
 
+    if thread ~= nil then
+        local w_size = imgui.GetWindowSize()
+        imgui.SetCursorPos{w_size.x /2.3, w_size.y /3}
+        CircularProgressBar(60, 25, 5)
+    else  
+        for k, v in ipairs(t) do local d = false
+            imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(-1, -1))
+            if button(tostring(v.id), {18, 18}) then d = true end
+            imgui.SameLine()
+            imgui.PopStyleVar()
+            if button(v.text, {138 - 18, 18}) or d then
+                local f = function ()
+                    NoKick()
+                    local model = getWeapontypeModel(v.id)
+                    requestModel(model)
+                    loadAllModelsNow()
+                    giveWeaponToChar(1, v.id, 99999)
+                    Noti('ֲûהאם '..v.text, OK)
+                    thread = nil
+                end
+                thread = lua_thread.create_suspended(f)
 
-        
-    for k, v in ipairs(t) do local d = false
-        imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(-1, -1))
-        if button(tostring(v.id), {18, 18}) then d = true end
-        imgui.SameLine()
-        imgui.PopStyleVar()
-        if button(v.text, {138 - 18, 18}) or d then
-            NoKick()
-            local model = getWeapontypeModel(v.id)
-            requestModel(model)
-            loadAllModelsNow()
-            giveWeaponToChar(1, v.id, 99999)
-            Noti('ֲûהאם '..v.text, OK)
+                thread:run()
+
+            end
+            if k%3 ~= 0 then imgui.SameLine() end
         end
-        if k%3 ~= 0 then imgui.SameLine() end
     end
     imgui.PopStyleVar()	
    
