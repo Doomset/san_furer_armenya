@@ -344,7 +344,7 @@ if cfg.is_upd_to_date then
     asyncHttpRequest('GET', url, nil, function (res)
         local t1 = decodeJson(res.text)
 
-        asyncHttpRequest('GET', t1[1].tree.url, nil, function(res)
+        asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
             changelog = {
                 files = decodeJson(res.text).tree,
                 date = t1[1].commit.author.date,
@@ -366,24 +366,32 @@ function(player)
         self._sfa()   -- sfaAAAAAAAAA
 
 
-        local window_size = imgui.GetWindowSize()
-        if cfg.is_upd_to_date then
-            if changelog == nil then
-                local text = u8'Получаю информацию о последних изменениях...'
-                local calc_text = imgui.CalcTextSize(text)
-                imgui.SetCursorPos{window_size.x / 2 - calc_text.x / 2}
-                imgui.Text(text)
-                imgui.SetCursorPos{window_size.x / 2 - 30, window_size.y / 2 - 60}
         
-                CircularProgressBar(60, 25, 5)
-            else
-                imgui.Text(changelog[1].commit.author.date)
-                imgui.Text(changelog[1].commit.message)
-            end
-            if imgui.Button('Poxyi + poebat') then
-                cfg.is_upd_to_date = false
-                cfg()
-            end
+        if cfg.is_upd_to_date then
+            imgui.SetCursorPosY(88) -- позиция окошка с функциями \/
+            self:beginChild(function(d)
+                local window_size = imgui.GetWindowSize()
+                if changelog == nil then
+                    local text = u8'Получаю информацию о последних изменениях...'
+                    local calc_text = imgui.CalcTextSize(text)
+                    imgui.SetCursorPos{window_size.x / 2 - calc_text.x / 2}
+                    imgui.Text(text)
+                    imgui.SetCursorPos{window_size.x / 2 - 30, window_size.y / 2 - 60}
+            
+                    CircularProgressBar(60, 25, 5)
+                else
+                    imgui.Text(changelog.date)
+                    imgui.Text(changelog.message)
+                   
+                    for index, value in ipairs(changelog.files) do
+                        imgui.Text(value.path)
+                    end
+                end
+                if imgui.Button('Poxyi + poebat') then
+                    cfg.is_upd_to_date = false
+                    cfg()
+                end
+            end)
         else
             addons[select].gui(self)
         end

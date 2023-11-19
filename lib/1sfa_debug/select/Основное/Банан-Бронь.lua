@@ -8,6 +8,7 @@ return
     hint = [[Сбивается диалогом]],
     func =
     function()
+        NoKick()
         handler('dialog', {t = 'Рюкзак', s = 1})
         handler('dialog', {t = 'Ваше Досье', s = 0, button = 0})
         SendSync{ pos =  cfg['Пикапы']['3857.18'].pos,  pick = cfg['Пикапы']['3857.18'].id, force = true, specialKey = 1}

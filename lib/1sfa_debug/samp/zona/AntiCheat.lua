@@ -87,7 +87,7 @@ local mode_2 = function ()
 end
 
 
-NoKick = function()
+NoKick = function(fast)
     local res_id, has_timer = scan_vehs()
 
     if has_timer then return end
@@ -97,16 +97,20 @@ NoKick = function()
         timer("abuse", 6)
         sampSendExitVehicle(res_id)
     else
-        local surf = function (state)
-            IsCharSurfing = state
-            SurfingSync = state
-            sampForceOnfootSync()
+        if fast then
+            mode_2()
+        else
+            local surf = function (state)
+                IsCharSurfing = state
+                SurfingSync = state
+                sampForceOnfootSync()
+            end
+            pL('Ñ‏נפטל םא כמהךו')
+            surf(true)
+            wait(1100)
+            surf(false)
+            timer("abuse", 6)
         end
-        pL('Ñ‏נפטל םא כמהךו')
-        surf(true)
-        wait(1100)
-        surf(false)
-
     end
 
     
