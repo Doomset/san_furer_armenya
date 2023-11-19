@@ -157,7 +157,7 @@ local verfy = function (new_data, old_data)
 					--	progress_download.text = 'бяе тюикш яйювюмш сяоеьмн'
 					    process_update = false
 						Noti('бяе тюикш яйювюмш сяоеьмн, рпеасеряъ оепегюцпсгйю'..#files_for_download)
-						if is_update then cfg.is_upd_to_date = true; end
+						if is_update then cfg.is_upd_to_date = true; cfg() end
 						thisScript():reload()
 					end
 				end, function(err)
