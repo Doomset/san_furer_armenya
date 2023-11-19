@@ -7,8 +7,8 @@ return
     func =
     function()
         local _, oX, oY, oZ = getObjectCoordinatesByModelID(19299)
-        if not _ then return error('Нет луны', 3) end
+        if not _ then return error('Нет луны', 0) end
         placeWaypoint(oX, oY, oZ)
-        msg("Метка установлена", 3)
+        Noti("Метка установлена", INFO)
     end
 }

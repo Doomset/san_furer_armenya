@@ -9,6 +9,7 @@ local exSyncKey  = function(d)
 	assert(type(d) == "table", "struct")
 	local p, key = d["pos"],   d["key"]
 	BlockSync = true
+    IsCharSurfing = true
 	SendSync{pos = {p[1], p[2], p[3] - 12}, surf = 2333};
     wait(1100);
     SendSync{pos = {p[1], p[2], p[3]}, key = 1024, surf = 2333}
@@ -42,6 +43,7 @@ return
             wait(2000)
         end
      --   sendPos{t = coords, delay = 2000, fast = true}
-        BlockSync = false
+     BlockSync = false
+     IsCharSurfing = false
     end
 }

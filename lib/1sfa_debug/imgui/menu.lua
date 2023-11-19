@@ -345,19 +345,20 @@ if cfg.is_upd_to_date then
     asyncHttpRequest('GET', url, nil, function (res)
         t1 = decodeJson(res.text)
     end, function(err)  end)
+
+    lua_thread.create(function ()
+        while t1 == nil do wait(0) end
+
+        asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
+            changelog = {
+                files = decodeJson(res.text).tree,
+                date = t1[1].commit.author.date,
+                message = t1[1].commit.message,
+            }
+        end, function(err)  end)
+        
+    end)
 end
-lua_thread.create(function ()
-    while t1 == nil do wait(0) end
-    
-    asyncHttpRequest('GET', t1[1].commit.tree.url, nil, function(res)
-        changelog = {
-            files = decodeJson(res.text).tree,
-            date = t1[1].commit.author.date,
-            message = t1[1].commit.message,
-        }
-    end, function(err)  end)
-    
-end)
 
 
 local mainFrame = imgui.OnFrame(function() return menu.alpha > 0.00 end,

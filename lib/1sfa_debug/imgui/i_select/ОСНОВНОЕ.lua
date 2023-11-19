@@ -306,7 +306,7 @@ return
 			imgui.SetCursorPos{size.x / 2 - 30, size.y / 2 - 60}
 			--свитч статусов как в радио ???
 		
-			CircularProgressBar(20, 25, 5)
+			CircularProgressBar(70, 25, 5)
 
 			local s = imgui.CalcItemWidth()
 
@@ -314,6 +314,9 @@ return
 			imgui.SetCursorPos{size.x / 2 - 120 / 2, 155}
 			if imgui.Button('Stop', {120, 20}) then
 				IsAnyFuncActiove = false
+				IsCharSurfing = false
+				SurfingSync = false
+				--BlockSync
 				self.active.handle:terminate()
 				self.active.handle = false
 				Action_SFA = {}

@@ -16,7 +16,7 @@ return
     func =
     function()
         local _, x, y, z, type  = isAnyCheckpointExist()
-        if not _ then return error("Нет чекпоинта",2) end
+        if not _ then return error("Нет чекпоинта",0) end
         NoKick()
         SendSync{ pos = {x, y, z}, force = true}
     end

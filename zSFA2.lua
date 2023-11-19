@@ -128,8 +128,8 @@ local verify_files = function (new_data, old_data)
 	return files
 end
 
-local Noti = function ()
-	return Noti or print
+local Noti = function (t)
+	return (Noti or print)(t)
 end
 
 local process_update
@@ -275,6 +275,19 @@ pickup = function (data)
 		cfg.Пикапы[index] = data
 		Noti('Зарегистирован отсутствующий в базе пикап '..data.name, INFO)
 		cfg()
+	end
+end
+
+
+function getObjectCoordinatesByModelID(mID)
+	for i = 1, 1000 do
+		local obj = sampGetObjectHandleBySampId(i)
+		if doesObjectExist(obj) then
+			local objModel = getObjectModel(obj)
+			if objModel == mID then
+				return getObjectCoordinates(obj)
+			end
+		end
 	end
 end
 
