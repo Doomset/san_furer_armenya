@@ -10,5 +10,5 @@ print("player_pos сервер установил позицию ",pos.x, pos.y, pos.z, shortPos(pos.x
 
 print("player_pos ",pos.x, pos.y, pos.z, shortPos(pos.x, pos.y, pos.z))
 
-if BlockSyncJob then return false end
+if BlockSync then return false end
 end

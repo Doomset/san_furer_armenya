@@ -1,10 +1,11 @@
 
-attempt_to_login = 0
+
 require('lib.samp.events').onServerMessage = function(color, text)
 	lastservermsg = {color = color, text = text}
 
 	
 	if IsCharSurfing and text == 'Брысь с крыши' and color == -1439485014 then
+		bris = true
 		cfg["Лодка"].block = true
 		cfg()
 	end
@@ -30,14 +31,14 @@ require('lib.samp.events').onServerMessage = function(color, text)
 
 	if color == 267386880 and text:find("Вы получаете %d+$ %+ %d+$ бонус за уровень") then
 		timer("job delay", 61)
-		if BlockSyncJob then
+		if BlockSync then
 
-		--	msg{BlockSyncJob, "BlockSyncjob"}
-			BlockSyncJob = false
-			msg("BlockSyncJob = false")
-		elseif BlockSyncJob and text == 'Вы слишком устали!' and color == -1439485014 then
-			BlockSyncJob = false
-			msg("BlockSyncJob = false")
+		--	msg{BlockSync, "BlockSync"}
+			BlockSync = false
+			msg("BlockSync = false")
+		elseif BlockSync and text == 'Вы слишком устали!' and color == -1439485014 then
+			BlockSync = false
+			msg("BlockSync = false")
 		end
 	end
 

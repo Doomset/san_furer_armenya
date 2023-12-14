@@ -10,11 +10,16 @@ local t = {}
 
 local thread
 
+local imgui = require('mimgui')
+local button = require('sfa.imgui.icon').Button
+
+if not cfg['Лодка'].delay then
+    cfg['Лодка'].delay = 30
+    cfg()
+end
+
+local surf_delay = imgui.new.int(cfg['Лодка'].delay)
 local gui = function ()
-    if not imgui then
-        imgui = require('mimgui')
-        button = require('sfa.imgui.icon').Button
-    end
 
     
     if not doesCharExist(1) then return end
@@ -22,11 +27,32 @@ local gui = function ()
 
     imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(5, 0.5))
 
+
+
     if thread ~= nil then
         local w_size = imgui.GetWindowSize()
         imgui.SetCursorPos{w_size.x /2.3, w_size.y /3}
         CircularProgressBar(60, 25, 5)
     else  
+        if imgui.SliderInt(u8'задержка сюрфа('..(5*surf_delay[0])..')', surf_delay, 0, 500) then
+            cfg['Лодка'].delay = surf_delay[0]
+            cfg()
+        end
+        local res = timer.exist("abuse")
+        imgui.Text( u8(res and 'быстро выдаст ган'  or 'медленнее выдаст ган(лодка)'))
+        
+        if imgui.Button('Go', {300, 20}) then
+            local f = function ()
+                NoKick()
+                sampSendExitVehicle(1999)
+                thread = nil
+            end
+            thread = lua_thread.create_suspended(f)
+
+            thread:run()
+        end
+
+        imgui.Separator()
         for k, v in ipairs(t) do local d = false
             imgui.PushStyleVarVec2(imgui.StyleVar.ItemSpacing, imgui.ImVec2(-1, -1))
             if button(tostring(v.id), {18, 18}) then d = true end

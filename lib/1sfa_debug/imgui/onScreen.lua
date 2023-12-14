@@ -104,17 +104,27 @@ local function IsPointInsideRadar(x, y)
 end
 
 
+
+
+
 local render_func = imgui.OnFrame(function() return isSampAvailable() end,
 function(self)
-    self.HideCursor = true; 
+
     timer.process()
 
-    draw.indicatrs()
-    
+    draw.indicatrs()    
 
 end)
+render_func.HideCursor = true
+
+
+
+
 
 local mem = require('memory')
+
+
+
 local function sampGetCurrentDialogSize()
     local sampBase = getModuleHandle("samp.dll")
     if sampBase ~= nil then
@@ -132,7 +142,11 @@ end
 local notifications = imgui.OnFrame(function() return isSampAvailable() and sampIsDialogActive() end,
 function(self)
     local resX, resY = getScreenResolution()
-	imgui.SetNextWindowPos(imgui.ImVec2(resX / 2, resY/2 - 155), 2, imgui.ImVec2(0.5, 0.5))
+
+    local d_x, d_y = sampGetCurrentDialogSize()
+
+
+	imgui.SetNextWindowPos(imgui.ImVec2(resX / 2, d_y +  155), 1, imgui.ImVec2(0.5, 0.5))
 	imgui.Begin("dialog##", _, imgui.WindowFlags.NoDecoration + imgui.WindowFlags.AlwaysAutoResize)
 
 	if imgui.Button("copy name") then
@@ -170,10 +184,14 @@ function(self)
 		print(s)
 	end
     imgui.SameLine()
-    if imgui.Button("res") then 
-        NoKick()
-        sampSendDialogResponse(sampGetCurrentDialogId(), 1, 1, '%n')
+    if imgui.Button("res") then
+        lua_thread.create(function ()
+            NoKick()
+            sampSendDialogResponse(sampGetCurrentDialogId(), 1, 6, '%n')
+        end)
+     
     end
 
 	imgui.End()    
 end)
+notifications.HideCursor = true

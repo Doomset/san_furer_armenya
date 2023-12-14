@@ -1,6 +1,6 @@
 SFA_settings = {
 
-
+	surf_delay = 30,
 	is_upd_to_date = false,
 
 	build = '',
@@ -8,7 +8,7 @@ SFA_settings = {
 	piska = 1,
 	req_limit = 0,
 	debug = false,
-	addons = {circle = false, checker = false, players = false, dick = false},
+	addons = {circle = false, checker = false, players = false},
 
 	last = {
 		on = false,
@@ -273,6 +273,32 @@ function tableToString(tbl, indent)
 end
 
 
+
+-- local f = io.open(getWorkingDirectory()..'\\tpc.ini')
+-- -- [триангул€ци€1]
+-- -- X=-2830.38
+-- -- Y=2727.28
+-- -- Z=238.454
+-- local pos = {
+
+-- }
+
+-- local last = ''
+-- for line in f:lines() do
+--     local place_name = line:match('%[(.+)%]')
+--     if place_name and not pos[place_name] then pos[place_name] = {x = nil, y = nil, z = nil} last =  place_name end
+
+--     if not place_name then
+--         if line:find('X', 1) then  pos[last].x = line:gsub('X=', '')
+--         elseif line:find('Y', 1) then pos[last].y = line:gsub('Y=', '')
+--         elseif line:find('Z', 1) then pos[last].z = line:gsub('Z=', '') end
+--     end
+    
+
+-- end
+
+-- f:close()
+-- setClipboardText(encodeJson(pos))
 local json = function(orig_t, save_name)
 	local loaded_table
 	local f

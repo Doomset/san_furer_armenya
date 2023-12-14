@@ -5,7 +5,7 @@ local imgui = require("mimgui")
 
 
 
-
+local res_x, res_y = getScreenResolution()
 
 local tabs = {
 
@@ -18,6 +18,7 @@ local tabs = {
 	active = {name = false, handle = false},
 
 	size_window_child = imgui.ImVec2(550, 290),
+    window_pos = imgui.ImVec2(res_x/2, res_y/2),
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
     [1] = require('sfa.imgui.i_select.ПРОЧЕЕ'),
 --=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=--=
@@ -41,7 +42,7 @@ end)
 
 local select_key = 1
 addEventHandler("onWindowMessage", function(message, wparam)
-    if menu.alpha > 0.00 then
+    if menu.alpha > 0.00 and not BLOCK_BIND then
         if (message == 0x100 or message == 0x101) then
             if wparam == 0x1B then
                 consumeWindowMessage(true, false)
@@ -198,26 +199,40 @@ setmetatable(tabs,
         end
     })
 --
+
+
+
+
 tabs.begin = function(self, func, flags)
-
-
 	local a = menu.alpha
 	local res = imgui.GetIO().DisplaySize
 
 	imgui.PushStyleVarFloat(imgui.StyleVar.Alpha, a)
 
-	imgui.SetNextWindowSize(imgui.ImVec2(500 - a * -100,  300 - a * -100), 1)
-	imgui.SetNextWindowPos(imgui.ImVec2(res.x / 2 , (res.y / 2) ), a > 0.99 and 2 or 1, imgui.ImVec2(0.5, 0.5))
+    local win_size = imgui.ImVec2(500 - a * -100,  300 - a * -100)
+	imgui.SetNextWindowSize(win_size, 1)
+
+
+	imgui.SetNextWindowPos(imgui.ImVec2(self.window_pos.x , self.window_pos.y ),  a > 0.99 and 2 or  1, imgui.ImVec2(0.5, 0.5))
 
     
 
 	imgui.PushStyleVarVec2(imgui.StyleVar.FramePadding, imgui.ImVec2(1, 1))
-	imgui.Begin("##Хуууй", _, flags) imgui.PopStyleVar()
-	self.window_pos = imgui.GetWindowPos()
-	self.dialog_size = imgui.ImVec2(sampGetCurrentDialogSize())
+	imgui.Begin("##Хуууй", _, flags)
+    imgui.PopStyleVar()
+
+
+    local win_pos =imgui.GetWindowPos()
+
+    
+	self.window_pos = a > 0.99 and imgui.ImVec2(win_pos.x + win_size.x / 2, win_pos.y + win_size.y / 2) or self.window_pos
+
+
+    
+	local dialog_size = imgui.ImVec2(sampGetCurrentDialogSize())
 
 	if isSampAvailable() and sampIsDialogActive() then
-		setCurrentDialogPosition(self.window_pos.x - self.dialog_size.x, self.window_pos.y)
+		setCurrentDialogPosition(win_pos.x - dialog_size.x, win_pos.y)
 		--sampSetCurrentDialogSize(self.dialog_size.x / 2, self.dialog_size.y / 2)
 	end
 	func(self)
@@ -225,8 +240,98 @@ tabs.begin = function(self, func, flags)
 	imgui.PopStyleVar()
 end
 
+
+
+
+math.clamp = function(value, minVal, maxVal)
+    return math.min(math.max(value, minVal), maxVal)
+end
+
+
+local animation = { } do
+
+    animation.type = {
+        ANIMATION_TYPE_ONCE = 1,
+        ANIMATION_TYPE_DEFAULT = 2,
+        ANIMATION_TYPE_STEP = 3
+    }
+
+    animation.ease = function( n )
+        return 1 - math.pow( 1 - n, 5 );
+    end
+
+    animation.new = function( self, duration, animation_type )
+        local animation = { }
+            animation.duration = duration;
+            animation.type = animation_type;
+            animation.weight = 0.0;
+
+        return setmetatable( animation, {
+            __index = self,
+            __call = self.update
+        } );
+    end
+
+    animation.update = function( self, condition )
+        local condition = condition or false;
+
+        --frametime means 1 / fps
+        local clock = imgui.GetTime() / self.duration;
+        if ( self.animation_type == animation.type.ANIMATION_TYPE_ONCE ) then
+            self.weight = self.weight + clock;
+            self.weight = math.clamp( self.weight, 0, 1 );
+            return;
+        end
+
+        self.weight = self.weight + ( condition and clock or -clock );
+        if ( self.animation_type == animation.type.ANIMATION_TYPE_STEP ) then
+            self.weight = math.clamp( self.weight, 0, 1 ) % 1;
+            return;
+        end
+
+        self.weight = math.clamp( self.weight, 0, 1 );
+    end
+
+    animation.get = function( self )
+        return self.weight * self.weight * self.weight;
+    end
+
+    animation.value = function( self, from, to )
+        return from + ( to - from ) * animation.ease( self:get( ) )
+    end
+
+    animation.color = function( self, from, to )
+        return color(
+            from.r + ( to.r - from.r ) * animation.ease( self:get( ) ),
+            from.g + ( to.g - from.g ) * animation.ease( self:get( ) ),
+            from.b + ( to.b - from.b ) * animation.ease( self:get( ) ),
+            from.a + ( to.a - from.a ) * animation.ease( self:get( ) )
+        );
+    end
+
+    animation.vector = function( self, from, to )
+        return vector(
+            from.x + ( to.x - from.x ) * animation.ease( self:get( ) ),
+            from.y + ( to.y - from.y ) * animation.ease( self:get( ) ),
+            from.z + ( to.z - from.z ) * animation.ease( self:get( ) )
+        )
+    end
+
+    setmetatable( animation, {
+        __call = animation.new
+    } );
+    
+end
+
+
+local a = animation( 1, animation.type.ANIMATION_TYPE_DEFAULT )
+
+
+
 переключалка_чайлдов = os.clock()
+
 tabs.beginChild = function(self, func)
+
     imgui.SetCursorPosX(self.animate_child.offset)                                                -- OFFSET ANIM
     imgui.PushStyleVarFloat(imgui.StyleVar.Alpha, imgui.GetStyle().Alpha * self.animate_child.alpha) -- ALPHA
     imgui.BeginChild('Selected_CHILD', imgui.ImVec2(self.size_window_child.x, self.size_window_child.y), false,
@@ -244,6 +349,16 @@ local gui_sfa = function (self)
     self()        --- TABBSSSSSSS
     imgui.SetCursorPosY(88) -- позиция окошка с функциями \/
     self:beginChild(function(d)
+
+
+        
+        a:update( sampIsDialogActive()  )
+
+        print( a:get() )
+
+
+
+
         self[self.current]:menu()
     end)
 end
@@ -254,8 +369,10 @@ local addons = {['sfa'] = {gui = function (self) gui_sfa(self) end}}
 
 for addon, state in pairs(cfg.addons) do
    if state then
-      local data = require('sfa.addons.'..addon)
-      addons[addon] = {gui = data.gui}
+      local res, data = pcall(require, 'sfa.addons.'..addon)
+      if res then
+        addons[addon] = {gui = data.gui}
+      else print(data, ERROR) end
     end
 end
 
@@ -299,6 +416,7 @@ tabs._sfa = function()
 
    
     imgui.PushStyleColor(imgui.Col.Button, {0, 0, 0, 0})
+    imgui.PushStyleVarFloat(12, 0)
     local get_addons =function ()
         for addon, _ in pairs(addons) do
             if select == addon then hotline(select:upper()) end
@@ -315,6 +433,7 @@ tabs._sfa = function()
     get_addons()
     if imgui.Button('+') then imgui.OpenPopup('addosn') end
     imgui.PopStyleColor()
+    imgui.PopStyleVar()
    
 
     extra.Separator(-5, 25)
@@ -328,6 +447,16 @@ tabs._sfa = function()
                 if imgui.Checkbox(addon, state) then
                     cfg.addons[addon] = state[0]
                     cfg()
+                    if not state[0] then
+                        package.preload['sfa.addons.'..addon] = nil
+                        addons[addon] = nil
+                        select = 'sfa'
+                    else
+                        local res, data = pcall(require, 'sfa.addons.'..addon)
+                        if res then
+                            addons[addon] = {gui = data.gui}
+                        end
+                    end
                 end
             end
             imgui.EndPopup()
@@ -369,7 +498,7 @@ end
 
 local mainFrame = imgui.OnFrame(function() return menu.alpha > 0.00 end,
 function(player)
-    player.LockPlayer = input:active()
+    player.LockPlayer = input.active
 
     local dl = imgui.GetForegroundDrawList()
 

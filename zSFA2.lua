@@ -117,11 +117,11 @@ local verify_files = function (new_data, old_data)
 		if v.type ~= 'tree' then
 			local path = v.path:gsub('lib/1sfa_debug', 'sfa')
 			print('check', getWorkingDirectory()..'/'..path)
-			if not doesFileExist(getWorkingDirectory()..'/'..path) then
+			if not  (doesFileExist(getWorkingDirectory()..'/'..path)) then
 				print('not exist', v.path)
 				table.insert(files,  {path = v.path, size = v.size, update = false})
 			elseif old_data and check_hash(v.path, v.sha, old_data.tree) then
-				table.insert(files,  {path = v.path, size = v.size, update = false})
+				table.insert(files,  {path = v.path, size = v.size, update = true})
 			end
 		end
 	end
@@ -149,6 +149,7 @@ local verfy = function (new_data, old_data)
 				local path = moonDir..(v.path:gsub('lib/1sfa_debug', '\\sfa')) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
 				print(path)
 				asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
+					if not resovle.text then return end
 					write_file(path, resolve.text)
 --					progress_download.text = (v.update and 'обновлен ' or 'скачан ')..v.path
 					table.remove(files_for_download)
@@ -218,6 +219,9 @@ end)
 
 
 getFilesInPath = function(path, ftype)
+	if cfg and cfg.debug then
+		path = path:gsub('\\sfa', '\\lib\\1sfa_debug')
+	end
 	local Files = {}
 	local SearchHandle, File  = findFirstFile(getWorkingDirectory()..path .. "\\" .. ftype)
 	table.insert(Files, File)
@@ -294,7 +298,12 @@ end
 
 
 
+
 main = function()
+	
+
+
+
 	local struct = read_file(git_path)
 	if struct then verfy(struct) else update() end
 
@@ -305,12 +314,17 @@ main = function()
 	print('Структура файлов целостная')
 
 	
+	
+
+	while not isSampAvailable() do wait(0) end
+
+
 	cfg = require('sfa.Config')(SFA_settings,  "\\sfa\\settings.json")
 
 
 
 	
-
+	require("sfa.samp.handlers")
 	require('sfa.imgui.onInitialize')
 
 
@@ -321,13 +335,6 @@ main = function()
 
 	require("sfa.timer")
 
-
-
-
-
-
-	while not isSampAvailable() do wait(0) end
-
 	--update()
 	--initializeModels()
 
@@ -335,9 +342,8 @@ main = function()
 
 	-- -- 
 	
+
 	
-
-
 	--
 	-- timer('update', 1, function ()
 	-- 	update()
@@ -412,7 +418,6 @@ exSyncKey  = function(d)
 	BlockSync = true
 	SendSync{pos = {p[1], p[2], p[3] - 12}, surf = 2333}; Задержка(1.05); SendSync{pos = {p[1], p[2], p[3]}, key = 1024, surf = 2333}
 end
-
 
 
 

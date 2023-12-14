@@ -8,25 +8,12 @@ local extra = require'sfa.imgui.extra'
 
 
 local list = {
-    [1] = {
-        name = "визуал",
-    },
 
-    [2] = {
-        name = "прочее",
-    },
-
-    [3] = {
-        name = "автоматизация", 
-    },
-
-    [4] = {
-        name = "необходимое", 
-    }	
 }
 
 
-for k, v in ipairs{"визуал", "прочее", "автоматизация", 'необходимое'} do
+for k, v in ipairs{"автоматизация", "визуал", "прочее", 'необходимое'} do
+	list[k] = {name = v}
 	for _, v2 in ipairs(getFilesInPath("\\sfa\\select\\settings\\" .. v, '*.lua')) do
 		table.insert(list[k], require('sfa.select.settings.' .. v .. '.' .. v2:gsub("%.lua", "")))
 	end

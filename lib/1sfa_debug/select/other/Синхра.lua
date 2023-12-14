@@ -79,13 +79,13 @@ end
 
 SURF = function ()
                         
-    SurfingSync = true
+    IsCharSurfing = true
     sampForceOnfootSync()
     core["Прочее"].Синхра[1][1] = "surf"
     core["Прочее"].Синхра[1][2] = "PERSON"
 
     timer('Anticheat - prochee--Surf-OFF', 2, function ()
-         SurfingSync = false
+         IsCharSurfing = false
          msg('pff')
          core["Прочее"].Синхра[1][2] = "PERSON"
          core["Прочее"].Синхра[1][1] = "timeout(SURF)"
@@ -144,7 +144,6 @@ local gui = function ()
 
 
                         if b[0] == false then -- nerabotait
-                            msg('pf1f')
                             local exist = timer.exist('Anticheat-prochee-Surf-ON')
                             local exist2 = timer.exist('Anticheat-prochee-CAR-ON')
 
@@ -210,7 +209,7 @@ local gui = function ()
     
             imgui.SetCursorPos{p.x + 75, p.y + 1};
             
-            if imgui.BoolText(false, u8"Деньги") then
+            if imgui.BoolText(u8"Деньги") then
                 if imgui.IsMouseDoubleClicked(0) then
                     mon[0] = mymoney >= 500000 and 500000 or mymoney
                 elseif imgui.IsMouseDoubleClicked(1) then

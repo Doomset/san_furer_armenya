@@ -33,33 +33,15 @@ require('lib.samp.events').onShowDialog = function(id, style, title, button1, bu
 	-- 	return false
 	-- end
 
-	if text:find('Еще раз ошибёшься и будет кик') then
-		attempt_to_login = attempt_to_login + 1
-		msg(attempt_to_login..' попыток входа')
-	elseif text:find('Если не зайти, то пишите Кузе!') then
-		attempt_to_login = 0
-	end
+
 
 	
-
 	for k, v in ipairs(cfg["Диалоги"]["Список"]) do
 		if v.on and title:find(v.title) then
 			sampSendDialogResponse(id, v.button, v.select, v.input)
 			print('settings["Диалоги"]["Список"]', "Послан ответ дииалог ", id, v.button, v.select, v.input)
 			return false
 		end
-	end
-
-	if cfg["Автопароль"]["Функции"]["Скрыть почту"] and title:find("Система безопасности") then
-		local t = timer.exist("твинк")
-
-		timer("окно с почтой", t and t + 1.1 or 0.0, function()
-			handler('dialog', {t = 'Сложность'})
-			handler('dialog', {t = 'Уровень сложности', s = 2, i = 'Пропустить обучение'})
-			--timer.exist(@) что бы привходе не было конфликтов
-			sampSendChat("/твинк")
-		end)
-		return false
 	end
 
 
@@ -77,23 +59,6 @@ require('lib.samp.events').onShowDialog = function(id, style, title, button1, bu
 
 if handler.has("dialog", {id, title}) then return false end
 
-	local f = title
-	if cfg["Автопароль"]["Статус"] and ( f:find('Окно Регистрации') or f:find('Выберите пол персонажа') or f:find('Регистрация реферала') or f:find('Окно Входа') ) then
-
-
-		if attempt_to_login ~= 0 and f:find('Окно Входа') then msg('не правильный пароль, автологин оффнут во избежании кика') cfg["Автопароль"]["Статус"] = false return end
-
-		if cfg["Автопароль"]["Любой акк"].on then sampSendDialogResponse(id, 1, -1, f:find('Регистрация реферала') and " " or cfg["Автопароль"]["Любой акк"].pass) print("AUTOLOGIN") return false end
-		local myid = select(2, sampGetPlayerIdByCharHandle(PLAYER_PED))
-
-
-		for k, v in ipairs(cfg["Автопароль"]["Функции"]["Акки"]) do
-			if v.on and (string.lower(v.nick) == string.lower(sampGetPlayerNickname(myid))) then
-				print("AUTOLOGIN")
-				sampSendDialogResponse(id, 1, -1, f:find('Регистрация реферала') and " " or v.pass)
-				return false
-			end
-		end
-	end
+	
 end
 

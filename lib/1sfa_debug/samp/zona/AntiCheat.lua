@@ -86,6 +86,40 @@ local mode_2 = function ()
     timer("abuse", 6)
 end
 
+bris = false
+local c = 1
+
+
+
+local surf = function (state)
+    IsCharSurfing = true
+
+    -- if state then
+    --     core["Прочее"].Синхра[1][2] = "PERSON"
+    --     core["Прочее"].Синхра[1][1] = "timeout(SURF)"
+    -- end
+
+    core["Прочее"].Синхра[1][3] = IsCharSurfing
+    local i = 5
+    for _ = 1, i do
+        sampForceOnfootSync()
+        wait(cfg['Лодка'].delay)
+    end
+    Noti('Общее время серфа '..(i * cfg['Лодка'].delay))
+    core["Прочее"].Синхра[1][3] = false
+
+    IsCharSurfing = false
+    sampForceOnfootSync()
+    -- while not bris do
+    --     
+    --     wait(40)
+    --     c = c + 1
+    -- end
+    -- Noti(c)
+    --sampForceOnfootSync()
+    
+    
+end
 
 NoKick = function(fast)
     local res_id, has_timer = scan_vehs()
@@ -100,21 +134,31 @@ NoKick = function(fast)
             Noti('ffast')
             mode_2()
         else
-            local surf = function (state)
-                IsCharSurfing = state
-                SurfingSync = state
-                sampForceOnfootSync()
-            end
+        
             pL('Сюрфим на лодке')
             surf(true)
-            wait(1100)
-            surf(false)
             timer("abuse", 6)
+            
         end
     end
 
-    
+
 end
+
+
+
+-- sampSendExitVehicle(2000)
+
+-- lua_thread.create(function ()
+--     wait(100)
+--     surf(true)
+--     wait(1100)
+--     surf(false)
+--     sampSendExitVehicle(2000)
+--     Noti('ПРосерфил')
+-- end)
+
+
 
 --NoKick()
 

@@ -12,34 +12,6 @@ local l_cfg = require('sfa.Config')({
 
 
 
-t.gui = function ()
-	imgui.PushStyleVarFloat(imgui.StyleVar.ChildRounding, 0)
-   
-	imgui.SetCursorPos{20, 50}
-	imgui.BeginChild("CIRCLE", imgui.ImVec2(550, 290), true)
-
-	local b = new.bool(l_cfg.state)
-	
-	if imgui.Checkbox(u8('Статус'), b) then
-		l_cfg.state = b[0]
-
-	end
-
-	
-	
-
-
-	imgui.PopStyleVar()
-	imgui.EndChild()
-end
-
-
-local gui_circle = function ()
-	
-end
-
-
-
 local getBonePosition = ffi.cast("int (__thiscall*)(void*, float*, int, bool)", 0x5E4280)
 local function GetBodyPartCoordinates(id, handle)
 	local pedptr = getCharPointer(handle)
@@ -66,6 +38,7 @@ end
 
 
 local function isCarLightsOn(car) return (readMemory(getCarPointer(car) + 0x428, 1) > 62) end
+
 local function jumpIntoCar(car, bool) -- by FYP
 	local seat = getCarFreeSeat(car)
   
@@ -78,9 +51,12 @@ local function jumpIntoCar(car, bool) -- by FYP
   
 	if bool then sampForceOnfootSync()  end
 			   
-	if seat == 0 then warpCharIntoCar(PLAYER_PED, car)         -- driver seat
-	else warpCharIntoCarAsPassenger(PLAYER_PED, car, seat - 1) -- passenger seat
+	if seat == 0 then
+		warpCharIntoCar(PLAYER_PED, car)         -- driver seat
+	else
+		warpCharIntoCarAsPassenger(PLAYER_PED, car, seat - 1) -- passenger seat
 	end
+
 	restoreCameraJumpcut()
 	return true, seat
   end
@@ -307,18 +283,11 @@ local circle_mode = 1
 local allPick,allObj, sampev = {}, {}, require('lib.samp.events')
 
 
-
-sampev.onDestroyPickup = function(id)
-	if allPick[id] then allPick[id] = nil end
-end
-
-
 -- {'onCreatePickup', {id = 'int32'}, {model = 'int32'}, {pickupType = 'int32'}, {position = 'vector3d'}}
 
 addEventHandler('onReceiveRpc', function(id, bs)
 	if id == 95 then --createpickup
-		local id = raknetBitStreamReadInt32(bs)
-		local model = raknetBitStreamReadInt32(bs)
+		local id, model = raknetBitStreamReadInt32(bs),  raknetBitStreamReadInt32(bs)
 		raknetBitStreamIgnoreBits(bs, 32)
 		if not allPick[id] then allPick[id] = {raknetBitStreamReadFloat(bs), raknetBitStreamReadFloat(bs), raknetBitStreamReadFloat(bs), model} end
 	elseif id == 63 then -- destroupick
@@ -333,6 +302,38 @@ end)
 
 
 local tab = {allPick, getAllChars, getAllVehicles, allObj}
+
+
+
+t.gui = function ()
+	imgui.PushStyleVarFloat(imgui.StyleVar.ChildRounding, 0)
+   
+	imgui.SetCursorPos{20, 50}
+	imgui.BeginChild("CIRCLE", imgui.ImVec2(550, 290), true)
+
+	local b = new.bool(l_cfg.state)
+	
+	if imgui.Checkbox(u8('Статус'), b) then
+		l_cfg.state = b[0]
+	end
+
+
+	for k, v in ipairs{'pick', 'chards', 'vehs', 'obj'} do
+		if imgui.Button(v) then
+			table.remove(tab, k)
+		end
+	end
+
+	
+
+
+	imgui.PopStyleVar()
+	imgui.EndChild()
+end
+
+
+
+
 
 local getNearCharToCenter = function(sx, sy, radius)
 	local arr, m, x, y, z = {}, circle_mode
@@ -370,7 +371,7 @@ end
 
 
 
-local canDraw = function()
+Can_Draw_Circle = function()
 	local c = readMemory(0xB6F1A8, 1, false)
 	return isSampAvailable() and isKeyDown(VK_RBUTTON) and c ~= 53 and c ~= 7 and c ~= 8 and c ~= 51
 end
@@ -386,9 +387,9 @@ local debugPic  = imgui.new.char[256]("")
 
 
 
-local mainFrame = imgui.OnFrame(function() return canDraw() end,
+local mainFrame = imgui.OnFrame(function() return Can_Draw_Circle() end,
 function(can)
-	can.HideCursor = true;
+	
 
 
     if imgui.IsKeyReleased(VK_E) then
@@ -540,6 +541,8 @@ function(self)
 	--imgui.EndChild()
 	imgui.End()
 end)
+
+mainFrame.HideCursor = true
 
 
 

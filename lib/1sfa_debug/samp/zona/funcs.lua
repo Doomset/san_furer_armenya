@@ -116,6 +116,8 @@ end
 
 
 Антирад_Или_Аптечка = function(аптечка, н)
+
+    
 	handler('dialog', {t = 'Регистратура', s = аптечка and 1 or 2, i = ''})
 	handler('dialog', {t = аптечка and 'Закупка аптечек' or 'Закупка антирадина', s = н and 0 or 1, i = ''})
 	handler('dialog', {t = 'Регистратура', s = 1, i = '', button = 0})

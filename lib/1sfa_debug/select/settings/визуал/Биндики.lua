@@ -18,7 +18,7 @@ local load_string, table_sort, copy_table = loadstring, table.sort, function(t) 
 
 local binds_from_settings = copy_table(cfg['Ѕинды'].list)
 
-
+-- todo ne rabotaet
 
 local gui = function ()
     local get_all_keys = function ()
@@ -37,15 +37,25 @@ local gui = function ()
                 imgui.SameLine()
                 if v.keys then
                     for k, v2 in ipairs( (Edit_bind[2] and Edit_bind[2].name == v.name) and Edit_bind[2].keys or v.keys) do
+
+                        local alpha = 1
+                        if Edit_bind[2] and Edit_bind[2].name == v.name then
+                            alpha = math.floor(math.sin(os.clock() * 3 + 4) * 127 + 128) / 255
+                        end
+                        imgui.PushStyleColor(imgui.Col.Text, {1, 1, 1, alpha})
                         imgui.Button(v2)
-    
+                        imgui.PopStyleColor()
+
                         if k ~= #v.keys then imgui.SameLine(nil, 3) end
                     end
                 else
                     imgui.Button('-')
                 end
                 imgui.SameLine()
+               
+    
                 imgui.Text(u8(v.name))
+               
                 imgui.SameLine()
                 if imgui.Button('edit##'..i) then
                     Edit_bind ={i, v }
@@ -64,13 +74,16 @@ end
 
 
 
-local bind_thread = {nil,nil}
+local bind_thread = nil
 
 local list =
 {
     dick =  copy_table(cfg['Ѕинды'].list), -- ссыль на список биндов с настроек
 
     hookKeys = function(self, keys_in_hook)
+
+
+        if (Can_Draw_Circle and Can_Draw_Circle()) or BLOCK_BIND then return end
 
         local t = self.dick
 
@@ -106,9 +119,33 @@ local list =
                         end
                     end
                 end
+                
                 if sovp == savp2 then
-                    local res, reason = pcall(load_string(v.func))
-                    if reason then Noti(reason, INFO) end
+
+                    if v.name == '“п' then
+
+                        if bind_thread ~= nil then return Noti('Kd') end
+
+                        local f = function ()
+                            local res, reason = pcall(load_string(v.func))
+                            if reason then Noti(reason, INFO) end
+                            bind_thread = nil
+                        end
+
+                        bind_thread = lua_thread.create_suspended(f)
+
+                    
+
+                        bind_thread:run()
+                    else
+                        local res, reason = pcall(load_string(v.func))
+                        if reason then Noti(reason, INFO) end
+                    end
+                        
+
+
+
+          
                     return
                 end
             end

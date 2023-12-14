@@ -2,89 +2,6 @@
 
 
 
-
-
-
-
-
-
-
-
-
-sampRegisterChatCommand('lp', function(arg)
-	local bool, x, y, z = getTargetBlipCoordinates(); if not bool then return false end
-
-	timers.loadmap = {os.clock(), 1}
-
-	loadplace = true
-
-	lua_thread.create(function()
-		for i = 1, 10 do SendSync{pos = {x, y, z}, manual = "player", surf = cfg["Лодка"].id} wait(100) end
-	end)
-end)
-
-
-
-sampRegisterChatCommand('c', function(coords)
-local x, y, z = coords:match('(.+), (.+), (.+)') --телепорт по координатам через команду
-if not(x and y and z) then return msg"обязательное соблюдение всех запятых  - /c x, y, z" end
-
-setCharCoordinates(playerPed, x, y, z)
-
-	timers.surf = {os.clock(), 1.2}
-
-	SendSync{manual = "player", surf = cfg["Лодка"].id}
-	BlockSync = true
-	tpcoords = {x, y, z}
-end)
-
-
-
-sampRegisterChatCommand('run',
-function(arg)
-	lua_thread.create(function() loadstring(arg)() end)
-end)
-
-
-
-sampRegisterChatCommand('tt', function(arg)
-	lua_thread.create(function()
-		NoKick()
-		exSync{ pos = {-23, 964, 20}, p = 3138}
-	end)
-end)
-
-
-
-sampRegisterChatCommand('gay', function(par)
-	local id, weapon, x = par:match("(%d+)%s(%d+)%s(%d+)")
-	local id, weapon, x = tonumber(id), tonumber(weapon), tonumber(x)
-	if not(id and weapon) then return msg2("/gay ид, идгана, сколько", 2) end
-	lua_thread.create(function()
-		NoKick()
-		BlockSync = true
-
-		SendSync{weapon = weapon, key = 0}
-		local x = (x > 0 and x or 1)
-		msg2(string.format("иду %d, будет отправлен урон с %d оружия, %d раз", id, weapon, x))
-		for i = 1, x do
-			print(i)
-			sampSendGiveDamage(id, 1, 123, 3)
-			--addAmmoToChar(PLAYER_PED, weapon, -1)
-			sampSendGiveDamage(id, 1, weapon, 3)
-			if weapon < 20 then wait(180) end
-		end
-		BlockSync = false
-	end)
-end)
-
-
-
-sampRegisterChatCommand('g', function(par)
-	пушка(par)
-end)
-
-
 local tCars = {
 	"Landstalker", "Bravura", "Buffalo", "Linerunner", "Perrenial", "Sentinel", "Dumper", "Firetruck",
 	"Trashmaster", "Stretch", "Manana", "Infernus", "Voodoo", "Pony", "Mule", "Cheetah", "Ambulance", "Leviathan",
@@ -134,23 +51,10 @@ SendSync{pos = {2859, 945, 1111}, mes = "/мина"}
 end)
 
 
-
-sampRegisterChatCommand('gar', function(arg)
-	print("Before collection: " .. collectgarbage("count")/1024)
-	collectgarbage()
-	print("After collection: " .. collectgarbage("count")/1024)
-	print("Object count: ")
-	local counts = type_count()
-	for k, v in pairs(counts) do print(k, v) end
-	print("-------------------------------------")
+sampRegisterChatCommand('run', function (t)
+	local bool, res = pcall(loadstring(t))
+	if not bool then msg(res) end
 end)
-
-
-
-sampRegisterChatCommand('y', function(arg)
-	inventar.switch()
-end)
-
 
 
 sampRegisterChatCommand('v', function(par)
@@ -203,25 +107,16 @@ end)
 
 
 sampRegisterChatCommand('c', function(coords)
+
 local x, y, z = coords:match('(.+), (.+), (.+)') --телепорт по координатам через команду
 if not(x and y and z) then return msg"обязательное соблюдение всех запятых  - /c x, y, z" end
 
-setCharCoordinates(playerPed, x, y, z)
-
-	timers.surf = {os.clock(), 1.2}
-
-	SendSync{manual = "player", surf = cfg["Лодка"].id}
-	BlockSync = true
-	tpcoords = {x, y, z}
+lua_thread.create(function ()
+	NoKick()
+	setCharCoordinates(playerPed, x, y, z)
 end)
 
-
-
-sampRegisterChatCommand('run',
-function(arg)
-	lua_thread.create(function() loadstring(arg)() end)
 end)
-
 
 
 sampRegisterChatCommand('tt', function(arg)
@@ -304,25 +199,3 @@ sampRegisterChatCommand('y', function(arg)
 end)
 
 
-
-sampRegisterChatCommand('v', function(par)
-	local f, q, w = RusToEng(par, true):lower()
-	if f:isEmpty() then return msg("введи ид или название пушки") end
-	for k, v in ipairs(tCars) do
-		for _, car_id in ipairs(getAllVehicles()) do
-			local res, car = sampGetCarHandleBySampVehicleId(car_id)
-			if res then
-				local m_id  = getCarModel(car)
-				local m_name = tCars[m_id - 399]
-				if m_name:lower():find(f) or m_id == tonumber(f) then
-					sampSendExitVehicle(car_id)
-					setVehicleQuaternion(car, getCharQuaternion(1))
-					setCarCoordinates(car, GetBodyPartCoordinates(31, 1))
-					warpCharIntoCar(1, car)
-					return
-				end
-			end
-		end
-	end
-	return msg("НЕ ВАЛИД " .. f)
-end)

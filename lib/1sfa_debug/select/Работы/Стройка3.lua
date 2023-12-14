@@ -18,6 +18,6 @@ return
                 SendSync{ pos = {-2404.1513671875 , 2385.9267578125 , 8.2823190689087}, manual = "vehicle", id = id}
             end
         end)
-        BlockSyncJob = false
+        BlockSync = false
     end
 }

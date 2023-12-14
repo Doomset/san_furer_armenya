@@ -95,6 +95,8 @@ mod.Button = function(text, size, icon, center)
     text = tsize2.x >   size2.x and string.sub(text, 1, math.floor(size2.x / 4.2)) .. "..." or text --8
 
     local tsize = imgui.CalcTextSize(text)
+
+
     size = size and imgui.ImVec2(size) or tsize
 
 
@@ -105,6 +107,7 @@ mod.Button = function(text, size, icon, center)
     size = imgui.ImVec2((size.x + (center and icon and 30 or 0)), size.y)
 
     local res = imgui.InvisibleButton(text, size)
+    
     hover = imgui.IsItemHovered()
 
     if hover and sdsdds ~= text then
@@ -138,8 +141,7 @@ mod.Button = function(text, size, icon, center)
 
 
     if hover then
-        dl:AddRectFilledMultiColor({ p.x, p.y }, { p.x + size.x, p.y + size.y }, col_anim, col_anim, col_anim,
-            col_anim);
+        dl:AddRectFilledMultiColor({ p.x, p.y }, { p.x + size.x, p.y + size.y }, col_anim, col_anim, col_anim, col_anim);
     end
 
     dl:AddRectFilledMultiColor(p, { p.x + size.x, p.y + size.y }, col, col, col2, col2);
@@ -167,7 +169,7 @@ mod.Button = function(text, size, icon, center)
 
     extra.shadowText(size2, text)
 
-    return res
+    return res, hover
 end
 
 

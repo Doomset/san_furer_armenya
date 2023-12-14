@@ -112,6 +112,50 @@ local my_state = function()
 	end
 end
 
+dialog_response = false
+
+find_veh_and_send_pos = function(model, list, until_dialog) -- поиск 
+
+	
+
+	for i = 0, 2000 do
+		local bool, veh = sampGetCarHandleBySampVehicleId(i)
+		if bool and doesVehicleExist(veh) and isCarModel(veh, model) then
+			BlockSync = true
+			dialog_response = true
+			
+			local x, y, z = getCarCoordinates(veh)
+			sampSendExitVehicle(i)
+
+			
+
+
+			local veh_health = getCarHealth(veh)
+
+			SendSync{pos = {x, y, z}, manual = "vehicle", id = i, vehicleHealth = veh_health}
+
+			
+
+
+			if until_dialog then while dialog_response do wait(1) end end
+
+	
+			if list then
+				for k, v in ipairs(list) do
+					SendSync{pos = {v[1], v[2], v[3]}, manual = "vehicle", id = i, vehicleHealth = veh_health}
+				end
+			end
+		
+
+			return i, x, y, z, veh_health
+		end
+	end
+	return false
+end
+
+
+
+
 
 
 local rename = function(t, data, rename)
@@ -140,6 +184,8 @@ SendSync = function(t)
 		rename(t, "surfingVehicleId", "surf")
 		rename(t, "pick", "pic")
 		rename(t, "vehicleId", "id")
+
+		if IsCharSurfing or IsCharSurfing then t.surfingVehicleId = cfg["Лодка"].id Noti('SENDSYNC SURF')end
 		for k, v in pairs(t) do
 
 
@@ -148,7 +194,7 @@ SendSync = function(t)
 			end
 		end
 	else
-		print("FORCE SYNC")
+		print("FORCE SYNC", state[1])
 	end
 
 	s.send()
@@ -160,6 +206,87 @@ SendSync = function(t)
 	end
 
 end
+
+
+
+-- SendSync = function(t)
+
+-- 	local status, car_handle_auto, car_seatid = my_state()
+
+-- 	if t and t.id then
+-- 		status = 'vehicle'
+-- 		local bool, car_hanlode = sampGetCarHandleBySampVehicleId(t.id)
+-- 		car_handle_auto = car_hanlode
+
+		
+-- 		t.pos = {getCarCoordinates(car_hanlode)}
+-- 	end
+
+
+-- 	if status == 'vehicle' then
+-- 		t.vehicleHealth = getCarHealth( car_handle_auto )
+-- 		msg('hp ystanovleno')
+-- 	end
+
+-- 	local data = samp_create_sync_data(status)
+
+-- 	-- if t and t.pos then setCharCoordinates(1, t.pos[1], t.pos[2], t.pos[3]) end
+
+-- 	if t then
+-- 		print("SYNC", encodeJson(t), status)
+-- 		rename(t,  status == "player" and "weapon" or "currentWeapon", "weapon")
+-- 		rename(t, "keysData", "key")
+-- 		rename(t, "specialKey", "spec")
+-- 		rename(t, "position", "pos")
+-- 		rename(t, "quaternion", "quat")
+-- 		rename(t, "surfingVehicleId", "surf")
+-- 		rename(t, "pick", "pic")
+-- 		rename(t, "vehicleId", "id")
+
+-- 		if IsCharSurfing then t.surfingVehicleId = cfg["Лодка"].id Noti('SENDSYNC SURF')end
+
+-- 		for k, v in pairs(t) do
+-- 			if k ~= "a" and k ~= "f" and k ~= "pick" and k ~= "msg" and k~= 'force' and k ~= 'mes' and k ~= 'manual' then
+-- 				data[k] = v
+-- 			end
+-- 		end
+-- 	else
+-- 		print("FORCE SYNC", status)
+-- 	end
+
+-- 	data.send()
+
+-- 	if t then
+-- 		if t.pick then sampSendPickedUpPickup(t.pick) end
+-- 		if t.msg or t.mes then sampSendChat(t.msg or t.mes) end
+-- 		if t.f or t.force then SendSync() end
+-- 	end
+
+-- end
+
+
+
+
+
+
+-- sampRegisterChatCommand('te', function ()
+
+-- 	lua_thread.create(function ()
+		
+
+-- 		for i = 1, 100, 1 do
+-- 			NoKick()
+-- 			sampForceOnfootSync()
+-- 			wait(600)
+-- 		end
+		
+		
+-- 	end)
+
+	
+	
+
+-- end)
 
 -- SendSync{pos = {21, 12, 332}}
 -- SendSync{pos = {21.3223, 12.3213, 332.2}}

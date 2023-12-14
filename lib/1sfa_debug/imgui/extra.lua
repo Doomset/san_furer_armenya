@@ -54,7 +54,7 @@ do--color_
     end
 
     mod.convertRGBAToARGB = function(color)
-        local color = tonumber(color)
+        color = tonumber(color)
         local r, g, b, a = mod.explode_argb(color)
         return mod.join_argb(a, r, g, b)
     end
@@ -104,12 +104,30 @@ end
 
 
 
-mod.BoolText = function(bool, ...)
+mod.BoolText = function(...)
 	local colors, clr = imgui.GetStyle().Colors, imgui.Col
-	local color, p = bool and colors[clr.Button] or  mod.con(123, 123, 111), imgui.GetCursorPos()
-    imgui.Dummy(imgui.CalcTextSize(...))
-	imgui.SetCursorPos(p); mod.color_text(imgui.IsItemHovered() and colors[clr.ButtonHovered] or color, ...)
-	return imgui.IsItemClicked(0)
+
+  
+
+    local p, color =  imgui.GetCursorPos()
+	
+    local text = ({...})[1]
+    local t_size = imgui.CalcTextSize(...)
+    local res = imgui.InvisibleButton(text, t_size)
+
+    local is_clicked = imgui.IsItemClicked(0)
+    local hover = imgui.IsItemHovered() and isCursorActive()
+    color = hover and colors[clr.Button] or colors[clr.Text]
+
+
+   
+
+
+    
+	imgui.SetCursorPos(p); mod.color_text(bool and colors[clr.ButtonHovered] or color, ...)
+
+
+	return res and isCursorActive(), hover, is_clicked
 end
 
 
@@ -230,41 +248,6 @@ mod.hint = setmetatable(
                     imgui.Text(u8( self.list[text].run))
                     imgui.PopTextWrapPos()
 
-
-                    -- -- if os.clock() - self.clock_t > 0.99 then 
-                    -- --     self.un_text = text
-                    -- --     self.storoka_takaya_bejit_ebat = "" -- первый символ сюда ебать
-                    -- --     self.clock = os.clock()
-                    -- --  end
-
-
-
-                    -- print(self.list[text].clock)
-                
-                    
-                    -- local f = math.modf(mod.bringFloatTo(1, #text, self.list[text].clock, 0.8))
-
-                    
-                    -- local qwer = mod.bringFloatTo(0.1, 1, self.list[text].clock, 0.3)
-
-                
-
-                    -- local col, col2 = imgui.GetColorU32Vec4(mod.setAlpha(imgui.GetStyle().Colors[imgui.Col.WindowBg], qwer)),
-                    --     imgui.GetColorU32Vec4(mod.setAlpha(imgui.GetStyle().Colors[imgui.Col.ChildBg], qwer))
-                    -- imgui.GetWindowDrawList():AddRectFilledMultiColor(p2,
-                    --     { p2.x + imgui.GetWindowSize().x * 5, p2.y + imgui.GetWindowSize().y }, col2, col, col, col2);
-
-                    -- local ac = check_car()
-                    -- mod.color_text(ac and mod.con(46, 204, 113) or mod.con(207, 0, 15), ac and "NO WARN" or "WARN")
-
-                    
-                    -- self.list[text].run = string.sub(text, 1, f)
-                    -- imgui.PushTextWrapPos(size.x * 2);
-                    -- imgui.PushStyleColor(imgui.Col.Text, imgui.GetStyle().Colors[imgui.Col.TextDisabled])
-                    -- imgui.Text(u8(self.list[text].run))
-                    -- imgui.PopStyleColor()
-                    -- imgui.PopTextWrapPos();
-
                     imgui.End()
                     imgui.PopStyleVar()
                     imgui.PopFont()
@@ -294,11 +277,102 @@ local function RusToEng(tex, en)
 end
 
 
+
+BLOCK_BIND = false
+
 mod.input = function(self)
+
+
     local bo = {
-        is_clicked = false,
-        chars = "поиск",
+        active = false,
+        is_any_key_realesed = false,
+        is_enter_pressed = false,
+        chars = "кликни сюда или нажми ентер для поиска",
+
+        clear = function (self)
+            
+            BLOCK_BIND = false
+            self.is_any_key_realesed = false
+            self.active = false
+            self.is_enter_pressed = false
+            self.chars = "кликни сюда или нажми ентер для поиска"
+
+            if self.is_cleared then self:is_cleared() end
+        end
     }
+
+
+
+    
+
+    addEventHandler('onWindowMessage', function (message, wparam)
+
+        if bo.active then
+
+            if not menu.state then
+                bo:clear()
+                return
+            end
+
+
+            if (message == 0x100) then
+
+                bo.is_any_key_realesed = true
+
+
+            
+
+                if wparam == VK_ESCAPE then
+                    bo:clear()
+                    return
+                end
+
+                if wparam == 13 then
+                   
+                    if bo.is_enter_realeased then  bo:is_enter_realeased() end
+                end
+                
+                if wparam == 8 then
+                    bo.chars = (bo.chars:reverse():gsub(bo.chars:sub(-1), "", 1)):reverse()
+                end
+
+                if (wparam ~= 8 and wparam ~= 16 and wparam ~= 18 and wparam ~= 91 and
+                   wparam ~= 17 and wparam ~= 13 and wparam ~= VK_TAB and
+                   wparam ~= VK_UP and wparam ~= VK_DOWN and wparam ~= VK_LEFT and wparam ~= VK_RIGHT)
+                then
+                    bo.chars = bo.chars .. (wparam == 32 and " " or RusToEng(vkeys.id_to_name(wparam)))
+                end
+                consumeWindowMessage()
+
+      
+                
+            -- elseif (message == 0x101) then
+            --     if wparam == 2 then
+            --         bo:clear()
+            --     end
+            elseif message == 0x101 then
+                bo.is_any_key_realesed = false
+            end
+
+        else
+            if (message == 0x101) then
+
+                if  wparam == 13 then
+                    -- msg('enter')
+                    -- BLOCK_BIND = true
+                    -- bo.active  = true
+                    -- consumeWindowMessage()
+                end
+            end
+        end
+
+    
+
+        
+
+
+
+    end)
 
     bo.render = function(self, size)
         local p = imgui.GetCursorPos()
@@ -309,27 +383,30 @@ mod.input = function(self)
         local p2 = imgui.GetCursorScreenPos()
         imgui.Dummy(size)
 
-        -- addEventHandler("onWindowMessage", function(message, wparam)
-        --     if (message == 0x100 or message == 0x101) and not self.is_clicked then
-        --         if wparam == 13 then
-        --             msg('BLOCK ENTER')
-        --             consumeWindowMessage(true, false)
-        --         end
-        --     end
-        -- end)
+        
 
 
+       
 
-        if imgui.IsItemClicked() or imgui.IsKeyReleased(13) then self.is_clicked = true end
+
+        if imgui.IsItemClicked() then
+            BLOCK_BIND = true
+            self.active = true
+        end
+
+
+        --if self.is_clicked  and  not imgui.IsItemClicked() and imgui.IsMouseReleased(0) then self:clear() end
 
         imgui.SetCursorPos({ p.x + (size.x / 2 - tsize.x / 2), p.y - 5 })
         local p = imgui.GetCursorScreenPos()
-        imgui.PushStyleColor(imgui.Col.Text, imgui.GetStyle().Colors[imgui.Col.TextDisabled])
-        imgui.Text(u8(self.chars))
-      --  if self.chars == "поиск" then imgui.Icon({ p.x - 13, p.y + 3 }, "MAGNIFYING_GLASS", 10.5) end
-        imgui.PopStyleColor()
 
-        if self.is_clicked then
+        local col = imgui.GetStyle().Colors[imgui.Col.TextDisabled]
+        local col = imgui.ImVec4(col.x, col.y, col.z, 0.5)
+        mod.color_text(col, u8(self.chars))
+      --  if self.chars == "поиск" then imgui.Icon({ p.x - 13, p.y + 3 }, "MAGNIFYING_GLASS", 10.5) end
+      
+
+        if self.active then
             local a = math.floor(math.sin(imgui.GetTime() * 10) * 127 + 128) / 255
             local col, col2 = imgui.GetColorU32Vec4(mod.setAlpha(imgui.GetStyle().Colors[imgui.Col.Button], a)),
                 imgui.GetColorU32Vec4(mod.setAlpha(imgui.GetStyle().Colors[imgui.Col.Button], a))
@@ -337,43 +414,27 @@ mod.input = function(self)
             imgui.GetForegroundDrawList():AddRectFilledMultiColor({ p.x + tsize.x, p.y }, { p.x + tsize.x + 1, p.y + 14 },
                 col, col, col2, col2);
 
-            if self.chars == "поиск" then self.chars = "" end
-
-            if imgui.IsKeyPressed(8) then
-                self.chars = (self.chars:reverse():gsub(self.chars:sub(-1), "", 1)):reverse()
-            end
-
-            for i = 1, 250 do
-                if (i ~= 8 and i ~= 16 and i ~= 18 and i ~= 91 and i ~= 17 and i ~= 13 and imgui.IsKeyPressed(i)) and tsize.x < 150 then
-                    self.chars = self.chars .. (i == 32 and " " or RusToEng(vkeys.id_to_name(i)))
-                end
-            end
+            if self.chars == "кликни сюда или нажми ентер для поиска" then self.chars = "" end
         end
+
+        return self.is_any_key_realesed
     end
 
-    bo.active = function(self)
-        return self.is_clicked
-    end
+
 
     bo.filt = function(self, f)
-        if self.is_clicked then
-            if f:lower():find(self.chars) then
-                return true
-            end
-            if imgui.IsMouseReleased(0) or imgui.IsKeyReleased(13) then
-               -- msg("ывы")
-                self:null()
-                return true
-            end
-            return false
-        else
-            return true
-        end
+        return self.active and f:lower():find(self.chars)
     end
 
+ 
+    bo.is_enter_realeased = function (self, res)
+        return self.is_enter_pressed
+    end
+
+   
+
     bo.null = function(self)
-        self.is_clicked = false
-        self.chars = "поиск"
+        self:clear()
     end
 
     return bo
@@ -404,15 +465,18 @@ mod.BoolButton = function(bool, ...)
 end
 
 mod.color_text = function(color, ...)
-    local pos, a = imgui.GetCursorPos(), imgui.GetStyle().Alpha
+
+    local pos, alpha = imgui.GetCursorPos(), imgui.GetStyle().Alpha * imgui.ImVec4(color).w
+
+    
     imgui.SetCursorPos(imgui.ImVec2(pos.x + 1, pos.y))
-    imgui.TextColored(imgui.ImVec4(0, 0, 0, a), ...) -- shadow
+    imgui.TextColored(imgui.ImVec4(0, 0, 0,  alpha), ...) -- shadow
     imgui.SetCursorPos(imgui.ImVec2(pos.x - 1, pos.y))
-    imgui.TextColored(imgui.ImVec4(0, 0, 0, a), ...) -- shadow
+    imgui.TextColored(imgui.ImVec4(0, 0, 0, alpha), ...) -- shadow
     imgui.SetCursorPos(imgui.ImVec2(pos.x, pos.y + 1))
-    imgui.TextColored(imgui.ImVec4(0, 0, 0, a), ...) -- shadow
+    imgui.TextColored(imgui.ImVec4(0, 0, 0, alpha), ...) -- shadow
     imgui.SetCursorPos(imgui.ImVec2(pos.x, pos.y - 1))
-    imgui.TextColored(imgui.ImVec4(0, 0, 0, a), ...) -- shadow
+    imgui.TextColored(imgui.ImVec4(0, 0, 0, alpha), ...) -- shadow
     imgui.SetCursorPos(pos);
     imgui.TextColored(color, ...)
 end

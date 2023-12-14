@@ -44,7 +44,6 @@ local list = {}
 
 local require_function = function(pos, name)
 	local req = require('sfa.select.other.' .. name)
-
 	table.insert(list, pos, req)
 	table.insert(Loaded_Icons, req[2])
 end
@@ -60,7 +59,7 @@ local find = function (element)
 end
 
 for pos, table_1 in ipairs(campare) do
-	if not find(table_1) then
+	if not find(table_1:trim()) then
 		require_function(pos, table_1:trim())
 	end
 end

@@ -1,4 +1,6 @@
-require("sfa.samp.handlers")
+IsCharSurfing = false
+BlockSync = false
+
 require("sfa.samp.funcs")
 
 
@@ -6,7 +8,7 @@ require("sfa.samp.funcs")
 require("sfa.samp.zona")
 
 
-BlockSync = false
+
 
 
 for _, type in ipairs{"packets", "rpc"} do

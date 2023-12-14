@@ -191,14 +191,14 @@ function sampev.onSetPlayerPos(pos)
 
     print("player_pos ",pos.x, pos.y, pos.z, shortPos(pos.x, pos.y, pos.z))
 
-    if BlockSyncJob then return false end
+    if BlockSync then return false end
 end
 
 
 
 function sampev.onSetVehiclePosition(vehicleId, pos)
 	print("onSetVehiclePosition сервер установил позицию ",pos.x, pos.y, pos.z, shortPos(pos.x, pos.y, pos.z))
-	if BlockSyncJob then return false end
+	if BlockSync then return false end
 end
 
 
@@ -313,14 +313,14 @@ function sampev.onServerMessage(color, text)
 
 	if color == 267386880 and text:find("Вы получаете %d+$ %+ %d+$ бонус за уровень") then
 		timer("job delay", 61) 
-		if BlockSyncJob then
+		if BlockSync then
 			
-		--	msg{BlockSyncJob, "BlockSyncjob"}
-			BlockSyncJob = false
-			msg("BlockSyncJob = false")
-		elseif BlockSyncJob and text == 'Вы слишком устали!' and color == -1439485014 then
-			BlockSyncJob = false
-			msg("BlockSyncJob = false")
+		--	msg{BlockSync, "BlockSync"}
+			BlockSync = false
+			msg("BlockSync = false")
+		elseif BlockSync and text == 'Вы слишком устали!' and color == -1439485014 then
+			BlockSync = false
+			msg("BlockSync = false")
 		end
 	end
 
@@ -403,25 +403,25 @@ function samp_create_sync_data(sync_type, copy_from_player)
 end
 
 function sampev.onApplyPlayerAnimation(playerId, animLib, animName, frameDelta, loop, lockX, lockY, freeze, time)
-	if BlockSyncJob then return false end
+	if BlockSync then return false end
 end
 
 
 
 function sampev.onTogglePlayerControllable()
-	if BlockSyncJob then return false end
+	if BlockSync then return false end
 end
 
 
 
 function sampev.onClearPlayerAnimation(playerId)
-	if BlockSyncJob then return false end
+	if BlockSync then return false end
 end
 
 
 
 function sampev.onSetPlayerHealth(health)
-	if BlockSyncJob then return false end
+	if BlockSync then return false end
 end
 
 
@@ -469,7 +469,7 @@ function sampev.onSendPlayerSync(data)
     --     setCharCoordinatesDontResetAnim(pedFerma, data.position.x - math.sin(-math.rad(angle + 40)),  data.position.y - math.cos(-math.rad(angle + 20)),  data.position.z)
     -- end
 
-    if BlockSync or SendSyncBlock or BlockSyncJob or loadplace then return false end
+    if BlockSync or SendSyncBlock or BlockSync or loadplace then return false end
 
 
 
@@ -478,7 +478,7 @@ end
 
 
 function sampev.onSendVehicleSync(data)
-	if BlockSync or SendSyncBlock or BlockSyncJob or loadplace then return false end
+	if BlockSync or SendSyncBlock or BlockSync or loadplace then return false end
 
     if core["Прочее"].Синхра[6][3] then
 		data.quaternion[0] = 1/0
@@ -492,19 +492,19 @@ end
 
 
 function sampev.onSendUnoccupiedSync(data)
-	if BlockSync or SendSyncBlock or BlockSyncJob or loadplace then return false end
+	if BlockSync or SendSyncBlock or BlockSync or loadplace then return false end
 end
 
 
 
 function sampev.onSendPassengerSync(data)
-	if BlockSync or SendSyncBlock or BlockSyncJob or loadplace then return false end
+	if BlockSync or SendSyncBlock or BlockSync or loadplace then return false end
 end
 
 
 
 function sampev.onSendAimSync(data)
-	if BlockSync or SendSyncBlock or BlockSyncJob or loadplace then return false end
+	if BlockSync or SendSyncBlock or BlockSync or loadplace then return false end
 end
 
 

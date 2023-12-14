@@ -38,11 +38,22 @@ local load_fonts = function()
     imgui.InvalidateFontsTexture()
 end
 
-
+textures = {
+	map = nil,
+	player = nil,
+	marker = nil
+}
 
 
 
 imgui.OnInitialize(function()
+
+    textures.map = nil
+    local path = getWorkingDirectory()..'/sfa'
+    textures.player = imgui.CreateTextureFromFile(path.."/map/cursor.png")
+    textures.marker = imgui.CreateTextureFromFile(path.."/map/marker.png")
+    textures.map = imgui.CreateTextureFromFile(path.."/map/map.jpg")
+
     --textc = imgui.CreateTextureFromFile(getGameDirectory() .. "\\moonloader\\resource\\1.png")
 
 

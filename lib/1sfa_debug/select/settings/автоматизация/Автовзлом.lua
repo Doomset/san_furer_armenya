@@ -13,7 +13,7 @@ local gui = function ()
 
     imgui.SetCursorPosX(imgui.GetWindowSize().x / 2 - 100)
 
-    if imgui.SliderFloat(u8'##Задержка', int, 0, 5, "%.2fs", 1) then
+    if imgui.SliderFloat(u8'##Задержка', int, 0, 1, "%.2fs", 1) then
         cfg["Автовзлом"]["Функции"]["Задержка"] = int[0]
         cfg()
     end
@@ -33,7 +33,6 @@ end
 
 
 
-
 local blockNextTd
 
 addEventHandler('onReceiveRpc', function(id, bs)
@@ -41,32 +40,59 @@ addEventHandler('onReceiveRpc', function(id, bs)
 
         if id == 16  then
             local soundId = raknetBitStreamReadInt32(bs)
-            if soundId == 36401 and sampTextdrawIsExists(cfg["Автовзлом"]["Отмычка открыть"]) and cfg["Автовзлом"]["Статус"] then
+            if soundId == 36401 and sampTextdrawIsExists(cfg["Автовзлом"]["Отмычка открыть"]) then
                 blockNextTd = true
                 print("АВТОВЗЛОМ использование отмычки")
                 sampSendClickTextdraw(cfg["Автовзлом"]["Отмычка открыть"]) --open
             end
         elseif id == 134 then
-            local id = raknetBitStreamReadInt16(bs)
-            raknetBitStreamIgnoreBits(bs, 16 + 8 + 32 + 32 + 32 + 32+32 + 32 + 8 + 8 + 32 + 8+ 8)
-            local position_x, position_y = raknetBitStreamReadFloat(bs),raknetBitStreamReadFloat(bs)
+            
+            local data = {
+                id = raknetBitStreamReadInt16(bs),
+                flags = raknetBitStreamReadInt8(bs),
+                letterWidth = raknetBitStreamReadFloat(bs),
+                letterHeight = raknetBitStreamReadFloat(bs),
+                letterColor = raknetBitStreamReadInt32(bs),
+                lineWidth = raknetBitStreamReadFloat(bs),
+                lineHeight = raknetBitStreamReadFloat(bs),
+                boxColor = raknetBitStreamReadInt32(bs),
+                shadow = raknetBitStreamReadInt8(bs),
+                outline = raknetBitStreamReadInt8(bs),
+                backgroundColor = raknetBitStreamReadInt32(bs),
+                style = raknetBitStreamReadInt8(bs),
+                selectable = raknetBitStreamReadInt8(bs),
+                pos = {x = raknetBitStreamReadFloat(bs), y = raknetBitStreamReadFloat(bs) },
+                modelId = raknetBitStreamReadInt16(bs),
+                rotation = {x = raknetBitStreamReadFloat(bs), y = raknetBitStreamReadFloat(bs), z =raknetBitStreamReadFloat(bs)},
+                zoom = raknetBitStreamReadFloat(bs),
+                color = raknetBitStreamReadInt32(bs),
+                text =  raknetBitStreamReadString(bs, raknetBitStreamReadInt16(bs))
+            }
+
+
+
+            local position_x, position_y = data.pos.x, data.pos.y
             local ez = position_x + position_y
-            if ez == 201 and cfg["Автовзлом"]["Отмычка"] ~= id then
-                cfg["Автовзлом"]["Отмычка"] = id -- отмычка
+            if ez == 201 and cfg["Автовзлом"]["Отмычка"] ~= data.id then
+                cfg["Автовзлом"]["Отмычка"] = data.id -- отмычка
                 print("АВТОВЗЛОМ перезапись отмычки")
                 cfg()
-            elseif ez == -50 and cfg["Автовзлом"]["Отмычка открыть"] ~= id then
-                cfg["Автовзлом"]["Отмычка открыть"] = id -- открыть
+            elseif ez == -50 and cfg["Автовзлом"]["Отмычка открыть"] ~= data.id then
+                cfg["Автовзлом"]["Отмычка открыть"] = data.id -- открыть
                 print("АВТОВЗЛОМ перезапись замка")
                 cfg()
             end
             
-            if (position_x == 16 and position_y == -20) and cfg["Автовзлом"]["Статус"] then
+            if (position_x == 16 and position_y == -20) then
+
                 if blockNextTd then blockNextTd = nil return false end
+                
                 if cfg["Автовзлом"]["Функции"]["Задержка"] < 0.01 then sampSendClickTextdraw(cfg["Автовзлом"]["Отмычка"]) return end
+
                 timer('seif', cfg["Автовзлом"]["Функции"]["Задержка"], function ()
                     sampSendClickTextdraw(cfg["Автовзлом"]["Отмычка"])
                 end)
+
             end
         end
 

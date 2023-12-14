@@ -6,7 +6,7 @@ return
     hint = [[Нужно быть на литейном заводе, аккуратней с людьми рядом]],
     func =
     function()
-        BlockSyncJob = true
+        BlockSync = true
         handler('dialog', {t = 'Литейный завод', s = 2, i = 'Привезти взрычатку'})
         SendSync{ pos= {-1889.25, -1628.625, 17.875}, pick = cfg['Пикапы']['-3500.02'].id}
         Задержка(0.1)

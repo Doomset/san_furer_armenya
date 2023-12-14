@@ -7,7 +7,7 @@ return
     func =
     function()
         local _, x, y, z, type  = isAnyCheckpointExist()
-        if not _ then return error("Нет чекпоинта",2) end
+        if not _ then return error("Нет чекпоинта", 0) end
         NoKick()
         setCharCoordinates(PLAYER_PED, x, y, z)
     end

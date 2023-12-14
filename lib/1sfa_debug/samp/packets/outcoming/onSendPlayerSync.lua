@@ -18,12 +18,18 @@ require('lib.samp.events').onSendPlayerSync = function(data)
     -- end
 
 
-    if BlockSync or SendSyncBlock or BlockSyncJob or loadplace then return false end
+    if BlockSync or SendSyncBlock or BlockSync or loadplace then return false end
 
 
     --local surf = handler.has('surf')
-    if SurfingSync and cfg["Лодка"].block == false then
-        data.surfingVehicleId = cfg["Лодка"].id
+    if IsCharSurfing then
+
+  
+        if cfg["Лодка"].block == false then
+            data.surfingVehicleId =  cfg["Лодка"].id
+        else
+            Noti('У лодки возможно смнелися ид!')
+        end
     end
 
     

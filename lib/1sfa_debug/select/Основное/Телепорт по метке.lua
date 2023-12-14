@@ -8,7 +8,7 @@ local timeout = function ()
     timer("abuse", 6)
 end
 
-IsCharSurfing = false
+
 local lodka = function (x, y ,z)
     BlockSync = true
     SendSync{manual = "player", surf = cfg["Лодка"].id}; IsCharSurfing = true
@@ -39,7 +39,7 @@ return
 
         if not doesCharExist(PLAYER_PED) then return end
         local bool, x, y, z = getTargetBlipCoordinatesFixed()
-        if not bool then return error('Поставь метку') end
+        if not bool then return end
 
         
         if timer.exist("abuse") then

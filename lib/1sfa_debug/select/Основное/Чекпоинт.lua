@@ -1,3 +1,6 @@
+
+
+
 function isAnyCheckpointExist()
     local mem = require('memory')
 	local misc = sampGetMiscInfoPtr()

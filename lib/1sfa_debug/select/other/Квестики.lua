@@ -3,140 +3,65 @@ local extra = require('sfa.imgui.extra')
 local ffi = require('ffi')
 local new, str, sizeof = imgui.new, ffi.string, ffi.sizeof
 
-local stagequest = 1
-local totaltime = 0
-local selectQuest = new.int(0)
-local ar = {u8"Связной",u8"Зомботех",u8"Триангуляция",u8"Институт",u8"Тюрьма",u8"Последняя ниточка",u8"Выжигатель мозгов",u8"Алькатрас",u8"Вспомнить всё",u8"Пескадеро",u8"Шпионаж",u8"База",u8"Сопротивление",u8"Слабое звено",u8"Нет судьбы",u8"Шаман",u8"Ситеки",u8"Персирваль",u8"Парфюмер",u8"Ритуал",u8"Клятва Почтальонов",u8"Внешние Поставки",u8"Продовольствия",u8"Энергоснабжение",u8"Добыча Топлива",u8"Металлургия",u8"Метрополитен",u8"Важный Информатор",u8"Первобытное Зло",u8"Неоанархисты",u8"Честь и Отвага",u8"Темные дела",u8"Изучение Зоны",u8"Секретные Материалы",u8"Платиновая фишка"}
-local cArrayF = imgui.new['const char*'][#ar](ar)
+
 ---
 
 
-Взять_Квест = function(номер)
+Взять_Квест = function(n)
   --  local quest_name =  u8:decode(ar[selectQuest[0] + 1])
 	handler('dialog', {t = 'Бар', s = 2, i = 'Поговорить с барменом'})
-	handler('dialog', {t = 'Задания от Бармена', s = 3 + номер, i = ''})
+	handler('dialog', {t = 'Задания от Бармена', s = 3 + n, i = ''})
 
-	SendSync{pos = {-224.875, 1407.5, 27.75}, pick = Pickup('Бармен (Карсон)'), force = true, key = 0, armor = номер == 1 and 100 or nil, weapon = 31}
+	SendSync{pos = {-224.875, 1407.5, 27.75}, pick = cfg['Пикапы']["1210.47"].id, force = true, key = 0, armor = n == 1 and 100 or nil, weapon = 31}
 end
 
 
+
+
+
+local quests_name = {
+    {"Зомботех","Триангуляция","Институт","Тюрьма","Последняя ниточка","Выжигатель мозгов","Алькатрас","Вспомнить всё","Пескадеро","Шпионаж","База","Сопротивление","Слабое звено","Нет судьбы","Шаман","Ситеки","Персирваль","Парфюмер","Ритуал"},
+    {"Клятва Почтальонов","Внешние Поставки","Продовольствия","Энергоснабжение","Добыча Топлива","Металлургия","Метрополитен","Важный Информатор","Первобытное Зло","Неоанархисты","Честь и Отвага","Темные дела","Изучение Зоны","Секретные Материалы","Платиновая фишка"},
+}
+
+
+
+local m = {'бармен', 'почтальен'}
+
 local gui = function ()
-    local t = quests
-    imgui.SetCursorPosY(3)
-    imgui.PushFont(font[20])
-    extra.color_text(imgui.ImVec4(123 / 255.0, 123 / 255.0, 111 / 255.0, 1), ar[selectQuest[0] + 1] )
-    if imgui.IsItemClicked(0) then
-        lua_thread.create(function()
-            for k, v in ipairs(t[selectQuest[0]+ 1]) do
-                local n = v:match("wait%((%d+)%)")
-                if n then
-                    clockBar = {os.clock(), n}
-                end
-                stagequest = k
-                wait(1)
-                pcall( loadstring( v ))
-                --msg(v)\
+ 
 
+    imgui.SetCursorPos{8,6}
+
+    for k, v in ipairs(quests_name) do
+
+        imgui.PushStyleVarVec2(imgui.StyleVar.FramePadding, imgui.ImVec2(-0.2, -0.2))
+        imgui.BeginChild("barmen_quests"..k, {180, 270 - 8}, true, imgui.WindowFlags.MenuBar)
+
+        if imgui.BeginMenuBar() then
+            imgui.SetCursorPos{5, -1}
+            imgui.Text(u8(m[k]))
+            imgui.EndMenuBar()
+        end
+
+        for k, v in ipairs(v) do
+            imgui.Button(u8(v))
+            if imgui.IsItemClicked(1) then
+                os.execute(string.format('code --g "%s\\lib\\1sfa_debug\\select\\other\\квестики\\%s.lua:%d:14"', getWorkingDirectory(), v, 0) )
             end
-        end)
-    end
-    imgui.PopFont()
-
-    imgui.SameLine()
-
-    imgui.SetCursorPosY(7)
-
-
-    imgui.PushFont(font[14])
-
-    extra.color_text(imgui.ImVec4(123 / 255.0, 123 / 255.0, 44 / 255.0, 1), "~"..totaltime.." sec")
-
-
-    imgui.PopFont()
-
-
-    imgui.SetCursorPos{imgui.GetWindowSize().x  - 280 /2 - 10, 3}
-
-    imgui.PushItemWidth(150)
-    if imgui.Combo("###cc", selectQuest, cArrayF , #ar) then  end
-    imgui.PopItemWidth()
-
-    totaltime = 0 
-
-
-
-    imgui.SetCursorPosY(30)
-
-    imgui.BeginChild("quests", {imgui.GetWindowSize().x, 270 - 30}, true)
-
-
-    for k, v in ipairs(t[selectQuest[0]+ 1]) do
-
-        local p = imgui.GetCursorScreenPos()
-        imgui.Text(tostring(k))
-        imgui.SameLine()
-
-
-
-        imgui.PushFont(font[13])
-
-        local n = v.action:match("wait%((%d+)%)")
-
-        if n then totaltime = totaltime + n / 1000 end
-
+        end
         
+        imgui.EndChild()
+
+        imgui.PopStyleVar()
     
-        
-        imgui.PopFont()
-        
-
-        if k == stagequest then 
-            
-            local f, b
-
-            if clockBar and clockBar[1] then
-                f, b = extra.bringFloatTo(1, imgui.GetWindowSize().x, clockBar[1],  clockBar[2] / 1000)
-            end
-
-            local col = imgui.GetColorU32Vec4(extra.setAlpha(imgui.GetStyle().Colors[imgui.Col.Button], 0.5))
-
-            local col2 = imgui.GetStyle().Colors[imgui.Col.ButtonActive]
-            local col2 = imgui.GetColorU32Vec4({col2.x, col2.y, col2.z, 0.1})
-            --AddLine({pos.x + 15, pos.y - 5}, {pos.x +  imgui.CalcTextSize(text).x + 30, pos.y - 5}, imgui.GetColorU32Vec4(col), 3)
-
-            imgui.GetWindowDrawList():AddRectFilledMultiColor(p, {p.x + (b and f or imgui.GetWindowSize().x), p.y + 15}, col, col, col2, col2);
-
-           
-        end
-
-        if imgui.BoolText(false, v.info == '' and u8(v.action) or u8(v.info)) then
-            lua_thread.create(function()
-                imgui.SetScrollHereY()
-                NoKick()
-
-                if n then
-                    clockBar = {os.clock(), n}
-                end
-                stagequest = k
-                loadstring( v.action ) ()
-               
-
-            end)
-        end
-
-        if imgui.IsItemClicked(1) then
-            local name =  u8:decode(ar[selectQuest[0] + 1])
-            os.execute(string.format('code --g "%s\\lib\\sfa\\select\\other\\квестики\\%s.lua:%d:14"', getWorkingDirectory(), name, k + 2) )
-        end
-
-        extra.Separator(-5, -5)
-
-
+        imgui.SameLine(nil, 8)
     end
-    --stagequest = -1
 
+ 
+   
     
-    imgui.EndChild()
+
 
 end
 
@@ -146,43 +71,14 @@ local mod = {'Квестики ', 'CIRCLE_EXCLAMATION',  true, "Залупа хуй говно", gui}
 
 
 
-
-local function getFilesInPath(path, ftype)
-	local Files, SearchHandle, File = {}, findFirstFile(path .. "\\" .. ftype)
-	table.insert(Files, File)
-	while File do
-		File = findNextFile(SearchHandle)
-		table.insert(Files, File)
-	end
-	return Files
-end
-
-
-
-
--- local campare = ar
--- for ind, table_1 in ipairs(campare[2]) do
--- 	for k, table_2 in ipairs(list[2]) do
--- 		if table_2.name == table_1 then
--- 			table.remove(list[2], k)
-
-
--- 			list[2][#list[2]+1] = list[2][ind]
-			
-			
--- 			list[2][ind] = table_2
--- 			break
--- 		end
--- 	end
--- end
-
-
 quests = {}
-for k, v2 in ipairs(ar) do
-    local v2 = u8:decode(v2)
-    local req = require('sfa.select.other.квестики.'..v2)
-    --print(req)
-    table.insert(quests, req)
+for k, v in ipairs(quests_name) do
+    for k, list in ipairs(v) do
+
+        local req = require('sfa.select.other.квестики.'..list)
+        --print(req)
+        table.insert(quests, req)
+    end
 end
 
 
@@ -1356,35 +1252,6 @@ quests2 = {
 }
 
 
-
-
--- for k, v in ipairs(ar) do
---     local f_n = "C:\\GTA San Andreas\\moonloader\\lib\\sfa\\select\\other\\квестики\\"..u8:decode(v)..'.lua'
-
---     local file, res = io.open(f_n, "w")
-
-    
---     local line = 'return\n{'
---     for k, v in ipairs(quests2[k]) do
---         popa = ''
---         if v:find('NoKick()') then  popa = 'Обход кика'
---         elseif v:find('wait') then local del = v:match('(%d+)') popa = "Задержка "..(del/1000)..' сек'
---         elseif v:find("settings%['Пикапы'%]%['(.+)'%]") then
---             local pick = v:match("settings%['Пикапы'%]%['(.+)'%]")
---             print(pick)
---             popa = 'Пикап - '..cfg.Пикапы[pick].name
---         end
-
---         line = line..'\n    {info = "'..popa..'", action = "'..v:gsub('"',"'")..'"},'
---     end
-
---     file:write(line..'\n}')
-
-    
-
---     file:close()
-
--- end
 
 
 return mod
