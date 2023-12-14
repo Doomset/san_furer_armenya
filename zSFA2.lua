@@ -149,7 +149,7 @@ local verfy = function (new_data, old_data)
 				local path = moonDir..(v.path:gsub('lib/1sfa_debug', '\\sfa')) --v.path:find('3z3sfa2') and moonDir..'\\zsfa2.lua' or 
 				print(path)
 				asyncHttpRequest('GET', url, nil, function(resolve) -- нужно вызывать снаружи/crash????
-					if not resovle.text then return end
+					if not resolve.text then return end
 					write_file(path, resolve.text)
 --					progress_download.text = (v.update and 'обновлен ' or 'скачан ')..v.path
 					table.remove(files_for_download)
